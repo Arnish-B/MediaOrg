@@ -22,7 +22,7 @@ html,body{height:100%;overflow:hidden;background:#0a0a0c;color:#f2f1ee;
   background-color:#17171b}
 .scrim{position:absolute;inset:0;
   background:linear-gradient(to top,rgba(10,10,12,.97) 0%,rgba(10,10,12,.92) 26%,rgba(10,10,12,.45) 52%,rgba(10,10,12,.15) 72%,rgba(10,10,12,.55) 100%)}
-.body{position:relative;margin-top:auto;padding:0 20px calc(92px + env(safe-area-inset-bottom)) 20px;
+.body{position:relative;margin-top:auto;padding:0 86px calc(92px + env(safe-area-inset-bottom)) 20px;
   max-height:72%;overflow-y:auto;-webkit-overflow-scrolling:touch}
 .kind{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#5dcaa5;margin-bottom:7px}
 h1{font-size:27px;line-height:1.15;font-weight:600;letter-spacing:-.02em}
@@ -48,23 +48,36 @@ h1{font-size:27px;line-height:1.15;font-weight:600;letter-spacing:-.02em}
 #cLeft{left:14px}#cRight{right:14px}
 .corner svg{width:19px;height:19px;stroke:#e8e6e0;fill:none;stroke-width:1.7;
   stroke-linecap:round;stroke-linejoin:round}
+#rail{position:fixed;right:12px;bottom:calc(104px + env(safe-area-inset-bottom));z-index:6;
+  display:flex;flex-direction:column;gap:16px;align-items:center}
+.act{width:50px;height:50px;border-radius:50%;background:rgba(18,18,22,.66);
+  backdrop-filter:blur(14px);border:.5px solid rgba(255,255,255,.13);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative}
+.act svg{width:23px;height:23px;stroke:#e8e6e0;fill:none;stroke-width:1.6;
+  stroke-linecap:round;stroke-linejoin:round}
+.act.on{border-color:#5dcaa5}
+.act.on svg{stroke:#5dcaa5}
+.act .lbl{position:absolute;bottom:-15px;font-size:10px;color:#9a988f;white-space:nowrap}
+.act .val{position:absolute;bottom:-15px;font-size:10.5px;color:#5dcaa5;font-weight:600}
 #bar{position:fixed;left:0;right:0;bottom:0;z-index:7;
   padding:11px 16px calc(11px + env(safe-area-inset-bottom)) 16px;
   background:linear-gradient(to top,rgba(10,10,12,.96),rgba(10,10,12,0));
-  display:flex;align-items:center;gap:9px}
+  display:flex;align-items:center;gap:8px}
 .pill{font-size:12px;padding:6px 12px;border-radius:999px;border:.5px solid rgba(255,255,255,.16);
   background:rgba(22,22,26,.75);color:#cfcdc5;cursor:pointer;white-space:nowrap}
 .pill b{font-weight:600;color:#fff}
 .pill.sh{border-color:rgba(93,202,165,.55)}
 .pill.so{border-color:rgba(175,169,236,.55)}
+.pill.mu{border-color:rgba(239,159,39,.6);color:#fac775}
 .pill.cog{padding:6px 10px;margin-left:auto}
 .flash{position:fixed;inset:0;z-index:9;pointer-events:none;opacity:0;
   display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:600;
-  letter-spacing:.02em;transition:opacity .16s}
+  transition:opacity .16s;text-align:center;padding:0 40px}
 .flash.on{opacity:1}
 .flash.sh{background:rgba(29,158,117,.26);color:#9fe1cb}
 .flash.so{background:rgba(127,119,221,.26);color:#cecbf6}
-#sheet{position:fixed;left:0;right:0;bottom:0;max-height:84%;z-index:12;
+.flash.mu{background:rgba(239,159,39,.28);color:#fac775}
+#sheet{position:fixed;left:0;right:0;bottom:0;max-height:86%;z-index:12;
   background:#131317;border-radius:18px 18px 0 0;border-top:.5px solid rgba(255,255,255,.1);
   transform:translateY(102%);transition:transform .26s cubic-bezier(.3,.8,.3,1);
   display:flex;flex-direction:column}
@@ -93,24 +106,40 @@ h1{font-size:27px;line-height:1.15;font-weight:600;letter-spacing:-.02em}
 .rrow .sub{font-size:11px;color:#6a6963;margin-top:2px}
 .lrow{display:flex;align-items:center;gap:10px;padding:10px 0;
   border-bottom:.5px solid rgba(255,255,255,.06)}
-.lbar{width:3px;height:34px;flex:0 0 3px;display:flex;flex-direction:column;overflow:hidden}
+.lbar{width:3px;height:36px;flex:0 0 3px;display:flex;flex-direction:column;overflow:hidden}
 .lbar i{flex:1}
-.lrow .lt{font-size:14px;flex:1}
+.lrow .lt{font-size:14px;flex:1;line-height:1.3}
 .lrow .ly{font-size:12px;color:#6a6963}
-.chip{font-size:10.5px;padding:2px 8px;border-radius:5px;margin-right:4px}
-.chip.sh{background:rgba(29,158,117,.2);color:#9fe1cb}
-.chip.so{background:rgba(127,119,221,.2);color:#cecbf6}
+.lrow .who{font-size:10px;width:19px;height:19px;border-radius:50%;display:flex;
+  align-items:center;justify-content:center;font-weight:600;flex:0 0 19px}
+.stars{display:flex;flex-wrap:wrap;gap:7px;margin:14px 0 4px}
+.star{flex:0 0 calc(20% - 6px);padding:12px 0;border-radius:10px;background:#1b1b21;
+  border:.5px solid rgba(255,255,255,.1);text-align:center;font-size:15px;font-weight:600;
+  cursor:pointer;font-variant-numeric:tabular-nums}
+.star.sel{background:#1d9e75;color:#04342c;border-color:#1d9e75}
 label.f{display:block;font-size:12px;color:#908e86;margin:16px 0 6px}
-input.f{width:100%;padding:11px 13px;border-radius:9px;background:#1b1b21;color:#f2f1ee;
-  border:.5px solid rgba(255,255,255,.14);font-size:14px;font-family:inherit}
-input.f:focus{outline:none;border-color:#5dcaa5}
+input.f,textarea.f{width:100%;padding:11px 13px;border-radius:9px;background:#1b1b21;color:#f2f1ee;
+  border:.5px solid rgba(255,255,255,.14);font-size:14px;font-family:inherit;resize:vertical}
+input.f:focus,textarea.f:focus{outline:none;border-color:#5dcaa5}
 button.f{margin-top:14px;padding:11px 18px;border-radius:9px;background:#1d9e75;color:#04342c;
   border:none;font-size:14px;font-weight:600;font-family:inherit;cursor:pointer}
 button.g{background:transparent;color:#cfcdc5;border:.5px solid rgba(255,255,255,.18);
   margin-left:8px;font-weight:500}
-.msg{font-size:12.5px;margin-top:10px;line-height:1.55}
+button.f:disabled{opacity:.45}
+.msg{font-size:12.5px;margin-top:10px;line-height:1.55;color:#908e86}
 .msg.bad{color:#f09595}
 .msg.good{color:#9fe1cb}
+#gate{position:fixed;inset:0;z-index:30;background:#0a0a0c;display:none;
+  flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:0 28px}
+#gate.on{display:flex}
+#gate h3{font-size:19px;font-weight:600}
+#gate p{font-size:13px;color:#85837b;text-align:center;line-height:1.6;margin-bottom:12px}
+.who-btn{width:100%;max-width:300px;padding:15px 18px;border-radius:12px;background:#17171d;
+  border:.5px solid rgba(255,255,255,.14);display:flex;align-items:center;gap:12px;
+  cursor:pointer;font-family:inherit}
+.who-btn .av{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-weight:600;font-size:14px;color:#07140f}
+.who-btn .nm{font-size:15.5px;color:#f2f1ee}
 #load{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
   flex-direction:column;gap:14px;z-index:20;background:#0a0a0c;transition:opacity .3s}
 #load.off{opacity:0;pointer-events:none}
@@ -133,9 +162,25 @@ button.g{background:transparent;color:#cfcdc5;border:.5px solid rgba(255,255,255
   <svg viewBox="0 0 24 24"><path d="M12 3.2l2.7 5.6 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1L3.2 9.7l6.1-.9z"/></svg>
 </div>
 
+<div id="rail">
+  <div class="act" id="aWatched" role="button" aria-label="Watched">
+    <svg viewBox="0 0 24 24"><path d="M1.8 12S5.4 5.4 12 5.4 22.2 12 22.2 12 18.6 18.6 12 18.6 1.8 12 1.8 12z"/><circle cx="12" cy="12" r="3.1"/></svg>
+    <span class="lbl">watched</span>
+  </div>
+  <div class="act" id="aRate" role="button" aria-label="Rate">
+    <svg viewBox="0 0 24 24"><path d="M12 3.2l2.7 5.6 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1L3.2 9.7l6.1-.9z"/></svg>
+    <span class="lbl">rate</span>
+  </div>
+  <div class="act" id="aNote" role="button" aria-label="Note">
+    <svg viewBox="0 0 24 24"><path d="M20.4 14.4a2 2 0 0 1-2 2H7.2L3.6 20V5.2a2 2 0 0 1 2-2h12.8a2 2 0 0 1 2 2z"/></svg>
+    <span class="lbl">note</span>
+  </div>
+</div>
+
 <div id="bar">
+  <div class="pill mu" id="pMu">Both <b>0</b></div>
   <div class="pill sh" id="pSh">Shared <b>0</b></div>
-  <div class="pill so" id="pSo">Only me <b>0</b></div>
+  <div class="pill so" id="pSo">Mine <b>0</b></div>
   <div class="pill cog" id="pCog" role="button" aria-label="Settings">···</div>
 </div>
 
@@ -146,36 +191,36 @@ button.g{background:transparent;color:#cfcdc5;border:.5px solid rgba(255,255,255
   <div id="shBody"></div>
 </div>
 
+<div id="gate"></div>
 <div id="load"><div class="ring"></div><p>Loading the feed</p></div>
 
 <script>
 "use strict";
 
-var K_STATE = "reel.v0";
-var K_WORKER = "reel.worker";
+/* ---------------------------------------------------------------- config */
+
+var SUPA_URL = "https://qxmtxmumnudsyyhvzpkc.supabase.co";
+var SUPA_KEY = "sb_publishable_3wETr10Yuy8RvDUhbl94Og_BoqZvcVQ";
 var DEFAULT_WORKER = "https://mediaorg.d86532an.workers.dev";
+
+var K_ME = "reel.me";
+var K_WORKER = "reel.worker";
+var K_LEGACY = "reel.v0";
 var IMG = "https://image.tmdb.org/t/p/w780";
 var IMG_S = "https://image.tmdb.org/t/p/w185";
 
-var state = { queue: [], i: 0, shared: {}, solo: {}, detail: {}, busy: false, genres: {}, diag: {} };
+var state = {
+  queue: [], i: 0, detail: {}, busy: false, genres: {}, diag: {},
+  me: null, users: [], mine: {}, theirs: {}, ratings: []
+};
 var worker = DEFAULT_WORKER;
 
 try {
-  var raw = localStorage.getItem(K_STATE);
-  if (raw) { var s = JSON.parse(raw); state.shared = s.shared || {}; state.solo = s.solo || {}; }
   var w = localStorage.getItem(K_WORKER);
   worker = (w === "none" ? "" : (w || DEFAULT_WORKER)).replace(/\/+$/, "");
+  var m = localStorage.getItem(K_ME);
+  if (m) state.me = JSON.parse(m);
 } catch (e) {}
-
-function save() {
-  try { localStorage.setItem(K_STATE, JSON.stringify({ shared: state.shared, solo: state.solo })); }
-  catch (e) {}
-}
-function saveWorker(u) {
-  worker = (u || "").replace(/\/+$/, "");
-  try { localStorage.setItem(K_WORKER, worker || "none"); }
-  catch (e) {}
-}
 
 function el(id) { return document.getElementById(id); }
 function rnd(n) { return Math.floor(Math.random() * n); }
@@ -205,20 +250,128 @@ function paras(txt) {
   var mid = Math.ceil(sents.length / 2);
   return [sents.slice(0, mid).join("").trim(), sents.slice(mid).join("").trim()];
 }
-function getJSON(url, ms) {
+function getJSON(url, ms, opts) {
   var ctl = (typeof AbortController !== "undefined") ? new AbortController() : null;
   var timer = setTimeout(function () { if (ctl) ctl.abort(); }, ms || 9000);
-  return fetch(url, ctl ? { signal: ctl.signal } : undefined).then(function (r) {
+  var o = opts || {};
+  if (ctl) o.signal = ctl.signal;
+  return fetch(url, o).then(function (r) {
     clearTimeout(timer);
-    if (!r.ok) throw new Error("HTTP " + r.status);
-    return r.json();
+    if (!r.ok) return r.text().then(function (t) { throw new Error("HTTP " + r.status + " " + t.slice(0, 120)); });
+    if (r.status === 204) return null;
+    return r.text().then(function (t) { return t ? JSON.parse(t) : null; });
   }, function (e) {
     clearTimeout(timer);
     throw new Error((e && e.name === "AbortError") ? "timed out" : ((e && e.message) || "blocked or offline"));
   });
 }
 
-/* ---------- throttles ---------- */
+/* ------------------------------------------------------------- supabase */
+
+function sbHeaders(extra) {
+  var h = {
+    apikey: SUPA_KEY,
+    Authorization: "Bearer " + SUPA_KEY,
+    "Content-Type": "application/json"
+  };
+  for (var k in (extra || {})) h[k] = extra[k];
+  return h;
+}
+
+function sbGet(path) {
+  return getJSON(SUPA_URL + "/rest/v1/" + path, 12000, { headers: sbHeaders() });
+}
+
+function sbUpsert(table, rows, conflict) {
+  return getJSON(
+    SUPA_URL + "/rest/v1/" + table + (conflict ? "?on_conflict=" + conflict : ""),
+    12000,
+    {
+      method: "POST",
+      headers: sbHeaders({ Prefer: "resolution=merge-duplicates,return=minimal" }),
+      body: JSON.stringify(rows)
+    }
+  );
+}
+
+function sbDelete(table, query) {
+  return getJSON(SUPA_URL + "/rest/v1/" + table + "?" + query, 12000, {
+    method: "DELETE", headers: sbHeaders({ Prefer: "return=minimal" })
+  });
+}
+
+/* ---------------------------------------------- local model of the rows */
+
+function blank() { return { shared: false, solo: false, watched: false, rating: null, note: null }; }
+function mineOf(key) { return state.mine[key] || (state.mine[key] = blank()); }
+
+function applyRow(bucket, row) {
+  var m = bucket[row.media_key] || (bucket[row.media_key] = blank());
+  if (row.kind === "playlist_shared") m.shared = true;
+  else if (row.kind === "playlist_solo") m.solo = true;
+  else if (row.kind === "watched") m.watched = true;
+  else if (row.kind === "rating") m.rating = Number(row.value);
+  else if (row.kind === "note") m.note = row.value;
+}
+
+function loadMine() {
+  if (!state.me) return Promise.resolve();
+  return sbGet("interaction?select=user_id,media_key,kind,value").then(function (rows) {
+    state.mine = {}; state.theirs = {}; state.ratings = [];
+    (rows || []).forEach(function (r) {
+      if (r.user_id === state.me.id) {
+        applyRow(state.mine, r);
+        if (r.kind === "rating") state.ratings.push({ key: r.media_key, value: Number(r.value) });
+      } else {
+        applyRow(state.theirs, r);
+      }
+    });
+  }).catch(function (e) { state.diag.db = e.message; });
+}
+
+function mutualKeys() {
+  var out = [];
+  for (var k in state.mine) {
+    if (state.mine[k].shared && state.theirs[k] && state.theirs[k].shared) out.push(k);
+  }
+  return out;
+}
+
+var mediaCache = {};
+function rememberMedia(it) {
+  mediaCache[it.key] = { title: it.title, year: it.year, kind: it.kind, poster: it.poster };
+  return sbUpsert("media", [{
+    key: it.key, source: it.source, kind: it.kind, title: it.title,
+    year: it.year, poster: it.poster, genres: it.genres || []
+  }], "key");
+}
+
+function writeInteraction(it, kind, value) {
+  return rememberMedia(it).then(function () {
+    return sbUpsert("interaction", [{
+      user_id: state.me.id, media_key: it.key, kind: kind,
+      value: value === undefined ? null : value,
+      updated_at: new Date().toISOString()
+    }], "user_id,media_key,kind");
+  });
+}
+
+function dropInteraction(it, kind) {
+  return sbDelete("interaction",
+    "user_id=eq." + state.me.id + "&media_key=eq." + encodeURIComponent(it.key) + "&kind=eq." + kind);
+}
+
+function loadMediaRows(keys) {
+  var need = keys.filter(function (k) { return !mediaCache[k]; });
+  if (!need.length) return Promise.resolve();
+  var list = need.map(function (k) { return '"' + k + '"'; }).join(",");
+  return sbGet("media?select=key,title,year,kind,poster&key=in.(" + encodeURIComponent(list) + ")")
+    .then(function (rows) {
+      (rows || []).forEach(function (r) { mediaCache[r.key] = r; });
+    }).catch(function () {});
+}
+
+/* ---------------------------------------------------------- throttles */
 
 function gate(ms) {
   var last = 0;
@@ -228,18 +381,16 @@ function gate(ms) {
     return new Promise(function (r) { setTimeout(r, wait); });
   };
 }
-var gTmdb = gate(260);   // 40 req / 10 s
-var gJikan = gate(420);  // 3 req / s
+var gTmdb = gate(260);
+var gJikan = gate(420);
 
 function tmdb(path, params) {
   if (!worker) return Promise.reject(new Error("no worker"));
   var q = new URLSearchParams(params || {}).toString();
-  return gTmdb().then(function () {
-    return getJSON(worker + "/tmdb/" + path + (q ? "?" + q : ""));
-  });
+  return gTmdb().then(function () { return getJSON(worker + "/tmdb/" + path + (q ? "?" + q : "")); });
 }
 
-/* ---------- adapters: every source normalises to one shape ---------- */
+/* ------------------------------------------------------------ adapters */
 
 function genreNames(ids, kind) {
   var map = state.genres[kind] || {};
@@ -250,13 +401,10 @@ function fromTmdbMovie(m) {
   var full = (m.overview || "").trim();
   return {
     key: "tmdb:movie:" + m.id, source: "tmdb", sourceKind: "movie", sourceId: m.id,
-    kind: "movie",
-    title: m.title || m.original_title,
-    tagline: null,
+    kind: "movie", title: m.title || m.original_title, tagline: null,
     year: m.release_date ? parseInt(m.release_date.slice(0, 4), 10) : null,
     poster: m.poster_path ? IMG + m.poster_path : null,
-    genres: genreNames(m.genre_ids, "movie"),
-    runtime: null,
+    genres: genreNames(m.genre_ids, "movie"), runtime: null,
     descShort: clip(full, 230), descLong: full, thin: full.length <= 260,
     imdb: null,
     ratings: { tmdb: m.vote_average ? Math.round(m.vote_average * 10) / 10 : null,
@@ -264,18 +412,14 @@ function fromTmdbMovie(m) {
     extra: null
   };
 }
-
 function fromTmdbTv(t) {
   var full = (t.overview || "").trim();
   return {
     key: "tmdb:tv:" + t.id, source: "tmdb", sourceKind: "tv", sourceId: t.id,
-    kind: "show",
-    title: t.name || t.original_name,
-    tagline: null,
+    kind: "show", title: t.name || t.original_name, tagline: null,
     year: t.first_air_date ? parseInt(t.first_air_date.slice(0, 4), 10) : null,
     poster: t.poster_path ? IMG + t.poster_path : null,
-    genres: genreNames(t.genre_ids, "tv"),
-    runtime: null,
+    genres: genreNames(t.genre_ids, "tv"), runtime: null,
     descShort: clip(full, 230), descLong: full, thin: full.length <= 260,
     imdb: null,
     ratings: { tmdb: t.vote_average ? Math.round(t.vote_average * 10) / 10 : null,
@@ -283,24 +427,20 @@ function fromTmdbTv(t) {
     extra: null
   };
 }
-
 function fromTvmaze(s) {
   var full = strip(s.summary);
   return {
-    key: "tvmaze:" + s.id, source: "tvmaze", sourceId: s.id,
-    kind: "show",
+    key: "tvmaze:" + s.id, source: "tvmaze", sourceId: s.id, kind: "show",
     title: s.name, tagline: null,
     year: s.premiered ? parseInt(s.premiered.slice(0, 4), 10) : null,
     poster: s.image ? (s.image.original || s.image.medium) : null,
-    genres: s.genres || [],
-    runtime: s.averageRuntime || s.runtime || null,
+    genres: s.genres || [], runtime: s.averageRuntime || s.runtime || null,
     descShort: clip(full, 230), descLong: full, thin: full.length <= 260,
     imdb: s.externals ? s.externals.imdb : null,
     ratings: { tvmaze: s.rating && s.rating.average ? s.rating.average : null },
     extra: s.network ? s.network.name : (s.webChannel ? s.webChannel.name : null)
   };
 }
-
 function fromJikan(a) {
   var full = (a.synopsis || "").replace(/\s*\[Written by MAL Rewrite\]\s*/i, "").trim();
   return {
@@ -309,8 +449,7 @@ function fromJikan(a) {
     title: a.title_english || a.title, tagline: null,
     year: a.year || (a.aired && a.aired.from ? parseInt(a.aired.from.slice(0, 4), 10) : null),
     poster: a.images && a.images.jpg ? (a.images.jpg.large_image_url || a.images.jpg.image_url) : null,
-    genres: (a.genres || []).map(function (g) { return g.name; }),
-    runtime: null,
+    genres: (a.genres || []).map(function (g) { return g.name; }), runtime: null,
     descShort: clip(full, 230), descLong: full, thin: full.length <= 260,
     imdb: null,
     ratings: { mal: a.score || null, malVotes: a.scored_by || null },
@@ -318,38 +457,30 @@ function fromJikan(a) {
   };
 }
 
-/* ---------- pools ---------- */
+/* ---------------------------------------------------------------- pools */
 
 function loadGenres() {
   if (!worker || state.genres.movie) return Promise.resolve();
-  return Promise.all([tmdb("genre/movie/list"), tmdb("genre/tv/list")])
-    .then(function (r) {
-      state.genres.movie = {};
-      state.genres.tv = {};
-      (r[0].genres || []).forEach(function (g) { state.genres.movie[g.id] = g.name; });
-      (r[1].genres || []).forEach(function (g) { state.genres.tv[g.id] = g.name; });
-    })
-    .catch(function (e) { state.diag.genres = e.message; });
+  return Promise.all([tmdb("genre/movie/list"), tmdb("genre/tv/list")]).then(function (r) {
+    state.genres.movie = {}; state.genres.tv = {};
+    (r[0].genres || []).forEach(function (g) { state.genres.movie[g.id] = g.name; });
+    (r[1].genres || []).forEach(function (g) { state.genres.tv[g.id] = g.name; });
+  }).catch(function (e) { state.diag.genres = e.message; });
 }
-
 function loadTmdbMovies() {
-  return tmdb("discover/movie", {
-    sort_by: "popularity.desc", page: 1 + rnd(45),
-    "vote_count.gte": 400, include_adult: false, language: "en-US"
-  }).then(function (d) {
-    return (d.results || []).filter(function (m) { return m.poster_path && m.overview; }).map(fromTmdbMovie);
-  }).catch(function (e) { state.diag.movies = e.message; return []; });
+  return tmdb("discover/movie", { sort_by: "popularity.desc", page: 1 + rnd(45),
+    "vote_count.gte": 400, include_adult: false, language: "en-US" })
+    .then(function (d) {
+      return (d.results || []).filter(function (m) { return m.poster_path && m.overview; }).map(fromTmdbMovie);
+    }).catch(function (e) { state.diag.movies = e.message; return []; });
 }
-
 function loadTmdbShows() {
-  return tmdb("discover/tv", {
-    sort_by: "popularity.desc", page: 1 + rnd(30),
-    "vote_count.gte": 150, include_adult: false, language: "en-US"
-  }).then(function (d) {
-    return (d.results || []).filter(function (t) { return t.poster_path && t.overview; }).map(fromTmdbTv);
-  }).catch(function (e) { state.diag.shows = e.message; return []; });
+  return tmdb("discover/tv", { sort_by: "popularity.desc", page: 1 + rnd(30),
+    "vote_count.gte": 150, include_adult: false, language: "en-US" })
+    .then(function (d) {
+      return (d.results || []).filter(function (t) { return t.poster_path && t.overview; }).map(fromTmdbTv);
+    }).catch(function (e) { state.diag.shows = e.message; return []; });
 }
-
 function loadTvmaze() {
   return getJSON("https://api.tvmaze.com/shows?page=" + rnd(180)).then(function (arr) {
     return arr.filter(function (s) {
@@ -357,7 +488,6 @@ function loadTvmaze() {
     }).map(fromTvmaze);
   }).catch(function (e) { state.diag.tvmaze = e.message; return []; });
 }
-
 function loadAnime() {
   return gJikan()
     .then(function () { return getJSON("https://api.jikan.moe/v4/top/anime?page=" + (1 + rnd(14)) + "&limit=25"); })
@@ -365,129 +495,97 @@ function loadAnime() {
       return (j.data || []).filter(function (a) { return a.synopsis && a.images; }).map(fromJikan);
     }).catch(function (e) { state.diag.anime = e.message; return []; });
 }
-
 function shuffle(a) {
   for (var i = a.length - 1; i > 0; i--) { var j = rnd(i + 1), t = a[i]; a[i] = a[j]; a[j] = t; }
   return a;
 }
-
 function refill() {
   if (state.busy) return Promise.resolve();
   state.busy = true;
   return loadGenres().then(function () {
-    var jobs = worker
-      ? [loadTmdbMovies(), loadTmdbShows(), loadAnime()]
-      : [loadTvmaze(), loadAnime()];
-    return Promise.all(jobs);
+    return Promise.all(worker ? [loadTmdbMovies(), loadTmdbShows(), loadAnime()]
+                              : [loadTvmaze(), loadAnime()]);
   }).then(function (res) {
-    var mixed = [];
-    if (worker) {
-      mixed = shuffle(res[0]).slice(0, 14)
-        .concat(shuffle(res[1]).slice(0, 10))
-        .concat(shuffle(res[2]).slice(0, 8));
-    } else {
-      mixed = shuffle(res[0]).slice(0, 26).concat(shuffle(res[1]).slice(0, 9));
-    }
+    var mixed = worker
+      ? shuffle(res[0]).slice(0, 14).concat(shuffle(res[1]).slice(0, 10)).concat(shuffle(res[2]).slice(0, 8))
+      : shuffle(res[0]).slice(0, 26).concat(shuffle(res[1]).slice(0, 9));
     var seen = {};
     state.queue.forEach(function (q) { seen[q.key] = 1; });
-    mixed = mixed.filter(function (m) { return !seen[m.key]; });
-    state.queue = state.queue.concat(shuffle(mixed));
+    state.queue = state.queue.concat(shuffle(mixed.filter(function (m) { return !seen[m.key]; })));
     state.busy = false;
   }).catch(function () { state.busy = false; });
 }
 
-/* ---------- detail: cast and seasons ---------- */
+/* --------------------------------------------------- detail: cast, seasons */
 
 function detailFor(item) {
   if (state.detail[item.key]) return Promise.resolve(state.detail[item.key]);
   var p;
-
   if (item.source === "tmdb") {
     p = tmdb(item.sourceKind + "/" + item.sourceId, { append_to_response: "credits,external_ids" })
       .then(function (d) {
         var cast = ((d.credits && d.credits.cast) || []).slice(0, 40).map(function (c) {
-          return {
-            name: c.name, character: c.character || "",
+          return { name: c.name, character: c.character || "",
             img: c.profile_path ? IMG_S + c.profile_path : null,
-            pop: c.popularity || 0, billing: (c.order == null ? 999 : c.order) + 1
-          };
+            pop: c.popularity || 0, billing: (c.order == null ? 999 : c.order) + 1 };
         });
         cast.sort(function (a, b) { return b.pop - a.pop; });
         cast = cast.slice(0, 24).map(function (c, n) { c.rank = n + 1; return c; });
-
         var seasons = (d.seasons || []).filter(function (s) { return s.season_number > 0; })
           .map(function (s) {
-            return {
-              number: s.season_number,
-              name: s.name || ("Season " + s.season_number),
+            return { number: s.season_number, name: s.name || ("Season " + s.season_number),
               poster: s.poster_path ? IMG_S + s.poster_path : null,
-              episodes: s.episode_count,
-              summary: (s.overview || "").trim(),
-              year: s.air_date ? s.air_date.slice(0, 4) : null
-            };
+              episodes: s.episode_count, summary: (s.overview || "").trim(),
+              year: s.air_date ? s.air_date.slice(0, 4) : null };
           });
-
-        return {
-          cast: cast, seasons: seasons,
+        return { cast: cast, seasons: seasons,
           imdb: d.external_ids ? d.external_ids.imdb_id : null,
           tagline: d.tagline || null,
           runtime: d.runtime || (d.episode_run_time && d.episode_run_time[0]) || null,
-          ranked: "popularity"
-        };
+          ranked: "popularity" };
       });
-
   } else if (item.source === "tvmaze") {
     p = getJSON("https://api.tvmaze.com/shows/" + item.sourceId + "?embed[]=cast&embed[]=seasons")
       .then(function (d) {
         var em = d._embedded || {};
         return {
           cast: (em.cast || []).slice(0, 24).map(function (c, n) {
-            return {
-              name: c.person ? c.person.name : "",
+            return { name: c.person ? c.person.name : "",
               character: c.character ? c.character.name : "",
               img: c.person && c.person.image ? c.person.image.medium : null,
-              rank: n + 1, billing: n + 1
-            };
+              rank: n + 1, billing: n + 1 };
           }),
           seasons: (em.seasons || []).filter(function (s) { return s.number; }).map(function (s) {
-            return {
-              number: s.number, name: s.name || ("Season " + s.number),
+            return { number: s.number, name: s.name || ("Season " + s.number),
               poster: s.image ? (s.image.medium || s.image.original) : null,
               episodes: s.episodeOrder, summary: strip(s.summary),
-              year: s.premiereDate ? s.premiereDate.slice(0, 4) : null
-            };
+              year: s.premiereDate ? s.premiereDate.slice(0, 4) : null };
           }),
           ranked: "billing"
         };
       });
-
   } else {
     p = gJikan()
       .then(function () { return getJSON("https://api.jikan.moe/v4/anime/" + item.sourceId + "/characters"); })
       .then(function (j) {
-        var rows = (j.data || []).slice(0, 24).map(function (c, n) {
-          var va = (c.voice_actors || []).filter(function (v) { return v.language === "Japanese"; })[0]
-                 || (c.voice_actors || [])[0];
-          return {
-            name: va && va.person ? va.person.name : "(voice unknown)",
-            character: c.character ? c.character.name : "",
-            img: c.character && c.character.images ? c.character.images.jpg.image_url : null,
-            rank: n + 1, billing: n + 1
-          };
-        });
-        return { cast: rows, seasons: [], ranked: "favourites" };
+        return {
+          cast: (j.data || []).slice(0, 24).map(function (c, n) {
+            var va = (c.voice_actors || []).filter(function (v) { return v.language === "Japanese"; })[0]
+                   || (c.voice_actors || [])[0];
+            return { name: va && va.person ? va.person.name : "(voice unknown)",
+              character: c.character ? c.character.name : "",
+              img: c.character && c.character.images ? c.character.images.jpg.image_url : null,
+              rank: n + 1, billing: n + 1 };
+          }),
+          seasons: [], ranked: "favourites"
+        };
       });
   }
-
   return p.then(function (d) { state.detail[item.key] = d; return d; })
-    .catch(function () {
-      var d = { cast: [], seasons: [], failed: true };
-      state.detail[item.key] = d;
-      return d;
-    });
+    .catch(function () { var d = { cast: [], seasons: [], failed: true }; state.detail[item.key] = d; return d; });
 }
 
-/* ---------- rendering ---------- */
+/* ---------------------------------------------------------------- render */
 
 function cardHTML(it) {
   var bits = [];
@@ -498,55 +596,58 @@ function cardHTML(it) {
 
   var longHTML = paras(it.descLong).map(function (p) { return "<p>" + esc(p) + "</p>"; }).join("");
   var note = it.thin
-    ? '<p class="samenote">This source publishes a single synopsis for this title, so the long description is the same text set out in full.</p>'
+    ? '<p class="samenote">This source publishes a single synopsis, so the long description is the same text set out in full.</p>'
     : "";
 
-  var mark = "";
-  if (state.shared[it.key]) mark += '<span class="chip sh">Shared</span>';
-  if (state.solo[it.key]) mark += '<span class="chip so">Only me</span>';
+  var mk = [], mi = state.mine[it.key] || blank(), th = state.theirs[it.key] || blank();
+  if (mi.shared && th.shared) mk.push('<span class="chip" style="background:rgba(239,159,39,.2);color:#fac775;font-size:10.5px;padding:2px 8px;border-radius:5px;margin-right:4px">Both want this</span>');
+  else if (mi.shared) mk.push('<span class="chip" style="background:rgba(29,158,117,.2);color:#9fe1cb;font-size:10.5px;padding:2px 8px;border-radius:5px;margin-right:4px">Shared</span>');
+  else if (th.shared) mk.push('<span class="chip" style="background:rgba(29,158,117,.14);color:#6fae95;font-size:10.5px;padding:2px 8px;border-radius:5px;margin-right:4px">' + esc(otherName()) + ' wants this</span>');
+  if (mi.solo) mk.push('<span class="chip" style="background:rgba(127,119,221,.2);color:#cecbf6;font-size:10.5px;padding:2px 8px;border-radius:5px;margin-right:4px">Only me</span>');
+  if (mi.note) mk.push('<span class="chip" style="background:rgba(255,255,255,.07);color:#9a988f;font-size:10.5px;padding:2px 8px;border-radius:5px">note</span>');
 
-  return '<div class="poster" style="' +
-      (it.poster ? "background-image:url('" + esc(it.poster) + "')" : "") + '"></div>' +
+  return '<div class="poster" style="' + (it.poster ? "background-image:url('" + esc(it.poster) + "')" : "") + '"></div>' +
     '<div class="scrim"></div>' +
     '<div class="body">' +
-      '<div class="kind">' + esc(it.kind) + '</div>' +
+      '<div class="kind">' + esc(it.kind) + "</div>" +
       "<h1>" + esc(it.title) + "</h1>" +
       '<div class="tag" id="tagLine"></div>' +
       '<div class="meta" id="metaLine">' + bits.join("") + "</div>" +
-      (mark ? '<div style="margin-top:10px">' + mark + "</div>" : "") +
+      (mk.length ? '<div style="margin-top:10px">' + mk.join("") + "</div>" : "") +
       '<p class="short">' + esc(it.descShort || "No synopsis available.") + "</p>" +
-      '<div class="long">' + longHTML + "</div>" +
-      note +
+      '<div class="long">' + longHTML + "</div>" + note +
       '<div class="seasons" id="seasonStrip"></div>' +
     "</div>";
+}
+
+function otherName() {
+  var o = state.users.filter(function (u) { return !state.me || u.id !== state.me.id; })[0];
+  return o ? o.display_name : "They";
 }
 
 function paintDetail(it, d) {
   if (d.tagline) { var t = el("tagLine"); if (t) t.textContent = d.tagline; }
   if (d.runtime && !it.runtime) {
     it.runtime = d.runtime;
-    var m = el("metaLine");
-    if (m) m.insertAdjacentHTML("beforeend", "<span>" + d.runtime + " min</span>");
+    var mm = el("metaLine");
+    if (mm) mm.insertAdjacentHTML("beforeend", "<span>" + d.runtime + " min</span>");
   }
   if (d.imdb) it.imdb = d.imdb;
-
-  var strip = el("seasonStrip");
-  if (!strip || !d.seasons || !d.seasons.length) return;
-  strip.innerHTML = d.seasons.map(function (s, n) {
+  var strip2 = el("seasonStrip");
+  if (!strip2 || !d.seasons || !d.seasons.length) return;
+  strip2.innerHTML = d.seasons.map(function (s, n) {
     return '<div class="season" data-s="' + n + '">' +
       '<div class="sp" style="' + (s.poster ? "background-image:url('" + esc(s.poster) + "')" : "") + '"></div>' +
       '<div class="sn">' + esc(s.name) + "</div>" +
       '<div class="se">' + (s.episodes ? s.episodes + " ep" : "") +
-        (s.year ? (s.episodes ? " · " : "") + s.year : "") + "</div>" +
-    "</div>";
+        (s.year ? (s.episodes ? " · " : "") + s.year : "") + "</div></div>";
   }).join("");
-  Array.prototype.forEach.call(strip.querySelectorAll(".season"), function (node) {
+  Array.prototype.forEach.call(strip2.querySelectorAll(".season"), function (node) {
     node.onclick = function () {
       var s = d.seasons[parseInt(node.dataset.s, 10)];
-      openSheet(s.name, (s.episodes ? '<p class="msg">' + s.episodes + " episodes" +
-        (s.year ? ", from " + s.year : "") + "</p>" : "") +
-        '<p class="short" style="margin-top:12px">' +
-        esc(s.summary || "No season synopsis from this source.") + "</p>" +
+      openSheet(s.name,
+        (s.episodes ? '<p class="msg">' + s.episodes + " episodes" + (s.year ? ", from " + s.year : "") + "</p>" : "") +
+        '<p class="short" style="margin-top:12px">' + esc(s.summary || "No season synopsis from this source.") + "</p>" +
         '<p class="credit">Per-episode rating and notes arrive in V1.</p>');
     };
   });
@@ -554,6 +655,18 @@ function paintDetail(it, d) {
 
 var card = null;
 function current() { return state.queue[state.i]; }
+
+function paintRail() {
+  var it = current(); if (!it) return;
+  var mi = state.mine[it.key] || blank();
+  el("aWatched").className = "act" + (mi.watched ? " on" : "");
+  el("aNote").className = "act" + (mi.note ? " on" : "");
+  var rate = el("aRate");
+  rate.className = "act" + (mi.rating != null ? " on" : "");
+  rate.querySelector(".lbl").className = mi.rating != null ? "val" : "lbl";
+  rate.querySelector(mi.rating != null ? ".val" : ".lbl").textContent =
+    mi.rating != null ? mi.rating.toFixed(1) : "rate";
+}
 
 function render() {
   var it = current();
@@ -568,9 +681,8 @@ function render() {
   card.style.transition = "none";
   card.style.transform = "translate3d(0,0,0)";
   el("load").classList.add("off");
-
+  paintRail();
   detailFor(it).then(function (d) { if (current() === it) paintDetail(it, d); });
-
   if (state.queue.length - state.i < 8) refill();
   var nx = state.queue[state.i + 1];
   if (nx && nx.poster) { var im = new Image(); im.src = nx.poster; }
@@ -580,47 +692,64 @@ function advance(dir) {
   var ni = state.i + dir;
   if (ni < 0) { bounce(); return; }
   if (ni >= state.queue.length) {
-    refill().then(function () {
-      if (state.queue[ni]) { state.i = ni; render(); } else bounce();
-    });
+    refill().then(function () { if (state.queue[ni]) { state.i = ni; render(); } else bounce(); });
     return;
   }
   card.style.transition = "transform .22s cubic-bezier(.4,0,.6,1)";
   card.style.transform = "translate3d(0," + (dir > 0 ? "-100%" : "100%") + ",0)";
   setTimeout(function () { state.i = ni; render(); }, 210);
 }
-
 function bounce() {
   card.style.transition = "transform .18s ease-out";
   card.style.transform = "translate3d(0,-14px,0)";
   setTimeout(function () { card.style.transform = "translate3d(0,0,0)"; }, 170);
 }
 
+function flash(kind, text) {
+  var f = el("flash");
+  f.className = "flash on " + kind;
+  f.textContent = text;
+  setTimeout(function () { f.className = "flash " + kind; }, 520);
+}
+
 function collect(which) {
   var it = current();
-  if (!it) return;
-  (which === "sh" ? state.shared : state.solo)[it.key] =
-    { title: it.title, year: it.year, kind: it.kind, at: Date.now() };
-  save(); counts();
-  var f = el("flash");
-  f.className = "flash on " + which;
-  f.textContent = which === "sh" ? "Added to shared" : "Added to only me";
-  setTimeout(function () { f.className = "flash " + which; }, 460);
+  if (!it || !state.me) return;
+  var kind = which === "sh" ? "playlist_shared" : "playlist_solo";
+  var mi = mineOf(it.key);
+  if (which === "sh") mi.shared = true; else mi.solo = true;
+  counts();
+
+  var th = state.theirs[it.key] || blank();
+  var matched = which === "sh" && th.shared;
+  flash(matched ? "mu" : which,
+    matched ? "Match — " + otherName() + " wants this too"
+            : (which === "sh" ? "Added to shared" : "Added to yours"));
+
+  writeInteraction(it, kind).catch(function (e) {
+    flash("so", "Saved locally only — " + e.message);
+  });
+
   card.style.transition = "transform .2s ease-out";
   card.style.transform = "translate3d(" + (which === "sh" ? "34%" : "-34%") + ",0,0)";
   setTimeout(function () { advance(1); }, 190);
 }
 
 function counts() {
-  el("pSh").innerHTML = "Shared <b>" + Object.keys(state.shared).length + "</b>";
-  el("pSo").innerHTML = "Only me <b>" + Object.keys(state.solo).length + "</b>";
+  var sh = 0, so = 0;
+  for (var k in state.mine) {
+    if (state.mine[k].shared) sh++;
+    if (state.mine[k].solo) so++;
+  }
+  el("pSh").innerHTML = "Shared <b>" + sh + "</b>";
+  el("pSo").innerHTML = "Mine <b>" + so + "</b>";
+  el("pMu").innerHTML = "Both <b>" + mutualKeys().length + "</b>";
 }
 
-/* ---------- gestures ---------- */
+/* -------------------------------------------------------------- gestures */
 
 function bindGestures(node) {
   var sx = 0, sy = 0, dx = 0, dy = 0, drag = false, axis = null, scrolled = false;
-
   node.addEventListener("touchstart", function (e) {
     if (e.touches.length !== 1) return;
     sx = e.touches[0].clientX; sy = e.touches[0].clientY;
@@ -629,11 +758,9 @@ function bindGestures(node) {
     scrolled = b ? b.scrollTop > 2 : false;
     node.style.transition = "none";
   }, { passive: true });
-
   node.addEventListener("touchmove", function (e) {
     if (!drag) return;
-    dx = e.touches[0].clientX - sx;
-    dy = e.touches[0].clientY - sy;
+    dx = e.touches[0].clientX - sx; dy = e.touches[0].clientY - sy;
     if (!axis) {
       if (Math.abs(dx) > 10 || Math.abs(dy) > 10) axis = Math.abs(dx) > Math.abs(dy) ? "x" : "y";
       else return;
@@ -644,7 +771,6 @@ function bindGestures(node) {
       ? "translate3d(" + dx + "px,0,0) rotate(" + (dx / 44) + "deg)"
       : "translate3d(0," + dy * 0.9 + "px,0)";
   }, { passive: false });
-
   node.addEventListener("touchend", function () {
     if (!drag) return;
     drag = false;
@@ -658,13 +784,14 @@ function bindGestures(node) {
 
 document.addEventListener("keydown", function (e) {
   if (el("sheet").classList.contains("on")) { if (e.key === "Escape") closeSheet(); return; }
+  if (el("gate").classList.contains("on")) return;
   if (e.key === "ArrowUp") advance(-1);
   else if (e.key === "ArrowDown") advance(1);
   else if (e.key === "ArrowRight") collect("sh");
   else if (e.key === "ArrowLeft") collect("so");
 });
 
-/* ---------- sheets ---------- */
+/* ---------------------------------------------------------------- sheets */
 
 function openSheet(title, html) {
   el("shHead").querySelector("h2").textContent = title;
@@ -683,10 +810,7 @@ el("cLeft").onclick = function () {
   var it = current(); if (!it) return;
   openSheet("Cast", '<p class="msg">Loading…</p>');
   detailFor(it).then(function (d) {
-    if (!d.cast.length) {
-      openSheet("Cast", '<p class="msg">No cast listed for this title at the source.</p>');
-      return;
-    }
+    if (!d.cast.length) { openSheet("Cast", '<p class="msg">No cast listed at the source.</p>'); return; }
     var rows = d.cast.map(function (c) {
       return '<div class="crow">' +
         (c.img ? '<img src="' + esc(c.img) + '" alt="">' : '<div class="ph"></div>') +
@@ -694,133 +818,299 @@ el("cLeft").onclick = function () {
         (c.character ? "<div class='ch'>as " + esc(c.character) + "</div>" : "") + "</div>" +
         "<div class='rk'>" + c.rank + "</div></div>";
     }).join("");
-    var how = d.ranked === "popularity"
-      ? "Ranked by TMDB person popularity, not billing order."
-      : d.ranked === "favourites"
-        ? "Characters in MyAnimeList favourite order, with the Japanese voice actor."
-        : "Ordered by billing, which is all this source exposes.";
+    var how = d.ranked === "popularity" ? "Ranked by TMDB person popularity, not billing order."
+      : d.ranked === "favourites" ? "Characters in MyAnimeList favourite order, with the Japanese voice actor."
+      : "Ordered by billing, which is all this source exposes.";
     openSheet("Cast", rows + '<p class="credit">' + how + "</p>");
   });
 };
 
 el("cRight").onclick = function () {
   var it = current(); if (!it) return;
-  var rows = [];
+  var rows = [], mi = state.mine[it.key] || blank();
   function row(src, val, sub, scale) {
     rows.push('<div class="rrow"><div class="src">' + src +
       (sub ? '<div class="sub">' + sub + "</div>" : "") + "</div>" +
-      (val == null
-        ? '<div class="abs">not available</div>'
-        : '<div class="val">' + val + '<span style="font-size:12px;color:#6a6963">' + scale + "</span></div>") +
-      "</div>");
+      (val == null ? '<div class="abs">not available</div>'
+        : '<div class="val">' + val + '<span style="font-size:12px;color:#6a6963">' + scale + "</span></div>") + "</div>");
   }
-  if (it.source === "tmdb") {
-    row("TMDB", it.ratings.tmdb, it.ratings.tmdbVotes ? it.ratings.tmdbVotes.toLocaleString() + " votes" : "", "/10");
-  }
+  if (it.source === "tmdb") row("TMDB", it.ratings.tmdb, it.ratings.tmdbVotes ? it.ratings.tmdbVotes.toLocaleString() + " votes" : "", "/10");
   if (it.source === "tvmaze") row("TVMaze", it.ratings.tvmaze, "community average", "/10");
-  if (it.source === "mal") {
-    row("MyAnimeList", it.ratings.mal, it.ratings.malVotes ? it.ratings.malVotes.toLocaleString() + " votes" : "", "/10");
-  }
-  row("IMDb", null, it.imdb ? it.imdb + " — rating needs the nightly dump" : "no id from this source", "/10");
+  if (it.source === "mal") row("MyAnimeList", it.ratings.mal, it.ratings.malVotes ? it.ratings.malVotes.toLocaleString() + " votes" : "", "/10");
+  row("IMDb", null, it.imdb ? it.imdb + " — needs the nightly dump" : "no id from this source", "/10");
   row("Metacritic", null, "needs an OMDb key", "/100");
   row("Letterboxd", null, "API access requested", "/5");
   row("Rotten Tomatoes", null, "agent fetch, once you interact", "%");
-  row("Ours", null, "rate it in V0.5", "/5");
+  row("You", mi.rating, mi.rating != null ? "your rating" : "not rated yet", "/5");
   openSheet("Ratings", rows.join("") +
-    '<p class="credit">Absent is a real state, not an error. Each row fills in as its source comes online, and nothing here blocks the feed.</p>');
+    '<p class="credit">Absent is a real state, not an error. Each row fills in as its source comes online.</p>');
 };
 
-function listSheet(which) {
-  var bucket = which === "sh" ? state.shared : state.solo;
-  var keys = Object.keys(bucket).sort(function (a, b) { return bucket[b].at - bucket[a].at; });
+/* ------------------------------------------------------------ the actions */
+
+el("aWatched").onclick = function () {
+  var it = current(); if (!it || !state.me) return;
+  var mi = mineOf(it.key);
+  if (mi.watched) {
+    mi.watched = false; paintRail();
+    dropInteraction(it, "watched").catch(function () {});
+    flash("so", "Unmarked");
+  } else {
+    mi.watched = true; paintRail();
+    writeInteraction(it, "watched").catch(function (e) { flash("so", "Failed: " + e.message); });
+    flash("sh", "Marked watched");
+  }
+  render();
+};
+
+var RATINGS = [0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5];
+
+function rateSheet(it, picked) {
+  var mi = state.mine[it.key] || blank();
+  var sel = picked != null ? picked : mi.rating;
+  var same = sel == null ? [] : state.ratings.filter(function (r) {
+    return r.value === sel && r.key !== it.key;
+  });
+
+  function build() {
+    var stars = RATINGS.map(function (v) {
+      return '<div class="star' + (v === sel ? " sel" : "") + '" data-v="' + v + '">' + v.toFixed(1) + "</div>";
+    }).join("");
+    var panel = "";
+    if (sel != null) {
+      if (same.length) {
+        panel = '<p class="msg" style="margin-top:18px">You have rated ' + same.length +
+          " other " + (same.length === 1 ? "title" : "titles") + " exactly " + sel.toFixed(1) + ":</p>" +
+          same.slice(0, 30).map(function (r) {
+            var mrec = mediaCache[r.key] || {};
+            return '<div class="lrow"><div class="lt">' + esc(mrec.title || r.key) + "</div>" +
+              '<div class="ly">' + (mrec.year || "") + "</div></div>";
+          }).join("");
+      } else {
+        panel = '<p class="msg" style="margin-top:18px">Nothing else sits at ' + sel.toFixed(1) +
+          " yet. This title defines the shelf.</p>";
+      }
+    }
+    openSheet("Rate — " + it.title,
+      '<div class="stars">' + stars + "</div>" + panel +
+      '<div><button class="f" id="rSave"' + (sel == null ? " disabled" : "") + ">Save " +
+        (sel != null ? sel.toFixed(1) : "") + "</button>" +
+      (mi.rating != null ? '<button class="f g" id="rClear">Clear</button>' : "") + "</div>" +
+      '<p class="credit">Half-star steps. The list above is the check against your own past judgement, ' +
+      "before you commit this one.</p>");
+
+    Array.prototype.forEach.call(el("shBody").querySelectorAll(".star"), function (node) {
+      node.onclick = function () { rateSheet(it, parseFloat(node.dataset.v)); };
+    });
+    el("rSave").onclick = function () {
+      if (sel == null) return;
+      mi = mineOf(it.key);
+      mi.rating = sel;
+      var exist = state.ratings.filter(function (r) { return r.key === it.key; })[0];
+      if (exist) exist.value = sel; else state.ratings.push({ key: it.key, value: sel });
+      mediaCache[it.key] = { title: it.title, year: it.year, kind: it.kind, poster: it.poster };
+      paintRail(); closeSheet(); render();
+      writeInteraction(it, "rating", sel).catch(function (e) { flash("so", "Failed: " + e.message); });
+    };
+    if (el("rClear")) el("rClear").onclick = function () {
+      mineOf(it.key).rating = null;
+      state.ratings = state.ratings.filter(function (r) { return r.key !== it.key; });
+      paintRail(); closeSheet(); render();
+      dropInteraction(it, "rating").catch(function () {});
+    };
+  }
+
+  loadMediaRows(same.map(function (r) { return r.key; })).then(build);
+}
+
+el("aRate").onclick = function () {
+  var it = current(); if (!it || !state.me) return;
+  rateSheet(it, null);
+};
+
+el("aNote").onclick = function () {
+  var it = current(); if (!it || !state.me) return;
+  var mi = state.mine[it.key] || blank();
+  openSheet("Note — " + it.title,
+    '<label class="f" for="nt">Your note</label>' +
+    '<textarea class="f" id="nt" rows="5" placeholder="What you want to remember about it.">' +
+      esc(mi.note || "") + "</textarea>" +
+    '<div><button class="f" id="nSave">Save</button>' +
+    (mi.note ? '<button class="f g" id="nDel">Delete</button>' : "") + "</div>" +
+    '<p class="credit">Notes are yours alone. ' + esc(otherName()) + " does not see them.</p>");
+  el("nSave").onclick = function () {
+    var v = el("nt").value.trim();
+    if (!v) { el("nt").focus(); return; }
+    mineOf(it.key).note = v;
+    paintRail(); closeSheet(); render();
+    writeInteraction(it, "note", v).catch(function (e) { flash("so", "Failed: " + e.message); });
+  };
+  if (el("nDel")) el("nDel").onclick = function () {
+    mineOf(it.key).note = null;
+    paintRail(); closeSheet(); render();
+    dropInteraction(it, "note").catch(function () {});
+  };
+};
+
+/* ----------------------------------------------------------------- lists */
+
+function listRows(keys, mode) {
+  return keys.map(function (k) {
+    var rec = mediaCache[k] || {}, mi = state.mine[k] || blank(), th = state.theirs[k] || blank();
+    var bars = [];
+    if (mi.shared || th.shared) bars.push('<i style="background:#1D9E75"></i>');
+    if (mi.solo) bars.push('<i style="background:#7F77DD"></i>');
+    var who = "";
+    if (mode === "shared") {
+      if (mi.shared && th.shared) who = '<div class="who" style="background:rgba(239,159,39,.25);color:#fac775">2</div>';
+      else if (th.shared) who = '<div class="who" style="background:rgba(29,158,117,.22);color:#9fe1cb">' +
+        esc((otherName() || "?").charAt(0)) + "</div>";
+      else who = '<div class="who" style="background:rgba(29,158,117,.22);color:#9fe1cb">' +
+        esc(state.me ? state.me.initial : "?") + "</div>";
+    }
+    return '<div class="lrow"><div class="lbar">' + (bars.join("") || '<i style="background:#333"></i>') + "</div>" +
+      '<div class="lt">' + esc(rec.title || k) +
+      (mi.rating != null ? ' <span style="color:#5dcaa5;font-size:12px">' + mi.rating.toFixed(1) + "</span>" : "") +
+      "</div>" + who + '<div class="ly">' + (rec.year || "") + "</div></div>";
+  }).join("");
+}
+
+function showList(mode) {
+  var keys = [], title;
+  if (mode === "mutual") {
+    keys = mutualKeys(); title = "Both want this";
+  } else if (mode === "shared") {
+    var set = {};
+    for (var k in state.mine) if (state.mine[k].shared) set[k] = 1;
+    for (var k2 in state.theirs) if (state.theirs[k2].shared) set[k2] = 1;
+    keys = Object.keys(set); title = "Shared list";
+  } else {
+    for (var k3 in state.mine) if (state.mine[k3].solo) keys.push(k3);
+    title = "Only me";
+  }
   if (!keys.length) {
-    openSheet(which === "sh" ? "Shared" : "Only me",
-      '<p class="msg">Nothing here yet. Swipe ' + (which === "sh" ? "right" : "left") + " to add.</p>");
+    openSheet(title, '<p class="msg">Nothing here yet.</p>');
     return;
   }
-  var rows = keys.map(function (k) {
-    var v = bucket[k], both = state.shared[k] && state.solo[k];
-    return '<div class="lrow"><div class="lbar">' +
-      (both ? '<i style="background:#1D9E75"></i><i style="background:#7F77DD"></i>'
-            : '<i style="background:' + (which === "sh" ? "#1D9E75" : "#7F77DD") + '"></i>') +
-      "</div><div class='lt'>" + esc(v.title) + "</div><div class='ly'>" + (v.year || "") + "</div></div>";
-  }).join("");
-  openSheet(which === "sh" ? "Shared" : "Only me", rows +
-    '<p class="credit">Local to this device in V0. Two-person shared state lands with the database at V0.5.</p>');
+  openSheet(title, '<p class="msg">Loading…</p>');
+  loadMediaRows(keys).then(function () {
+    openSheet(title, listRows(keys, mode) +
+      '<p class="credit">' + (mode === "mutual"
+        ? "Titles you have both swiped right. This is the list that decides what you watch together."
+        : mode === "shared"
+          ? "Everything either of you put forward. A single initial is a request; a 2 is a match."
+          : "Yours alone. " + esc(otherName()) + " never sees this list.") + "</p>");
+  });
 }
-el("pSh").onclick = function () { listSheet("sh"); };
-el("pSo").onclick = function () { listSheet("so"); };
+el("pMu").onclick = function () { showList("mutual"); };
+el("pSh").onclick = function () { showList("shared"); };
+el("pSo").onclick = function () { showList("solo"); };
 
-/* ---------- settings ---------- */
+/* -------------------------------------------------------------- settings */
 
 function settingsSheet(msg) {
-  var active = worker
-    ? '<p class="msg good">Connected: ' + esc(worker) + "</p>"
-    : '<p class="msg">Not set. The feed is running on TVMaze and MyAnimeList, so there are no movies in it yet.</p>';
   openSheet("Settings",
-    active +
+    '<p class="msg good">Signed in as ' + esc(state.me ? state.me.display_name : "nobody") + "</p>" +
+    '<p class="msg">Worker: ' + (worker ? esc(worker) : "not set — TVMaze and MyAnimeList only") + "</p>" +
     '<label class="f" for="wk">Cloudflare worker URL</label>' +
     '<input class="f" id="wk" type="url" inputmode="url" autocapitalize="off" autocorrect="off" ' +
-      'spellcheck="false" placeholder="https://reel-proxy.yourname.workers.dev" value="' + esc(worker) + '">' +
+      'spellcheck="false" value="' + esc(worker) + '">' +
     '<div><button class="f" id="wkSave">Save and test</button>' +
-    (worker ? '<button class="f g" id="wkClear">Remove</button>' : "") + "</div>" +
+    '<button class="f g" id="swap">Switch person</button></div>' +
     (msg || "") +
     '<p class="credit">Your TMDB token lives as a secret on the worker, never in this page. ' +
-    'The worker URL is not a secret. Data from TVMaze (CC BY-SA), MyAnimeList via Jikan, and TMDB. ' +
+    'Data from TVMaze (CC BY-SA), MyAnimeList via Jikan, and TMDB. ' +
     'This product uses the TMDB API but is not endorsed or certified by TMDB.</p>');
 
   el("wkSave").onclick = function () {
     var v = (el("wk").value || "").trim().replace(/\/+$/, "");
-    if (!/^https:\/\/[^\s]+$/.test(v)) {
-      settingsSheet('<p class="msg bad">That does not look like an https URL.</p>');
-      return;
-    }
+    if (v && !/^https:\/\/[^\s]+$/.test(v)) { settingsSheet('<p class="msg bad">Not an https URL.</p>'); return; }
     el("wkSave").textContent = "Testing…";
-    getJSON(v + "/tmdb/configuration").then(function () {
-      saveWorker(v);
+    var check = v ? getJSON(v + "/tmdb/configuration") : Promise.resolve();
+    check.then(function () {
+      worker = v;
+      try { localStorage.setItem(K_WORKER, v || "none"); } catch (e) {}
       state.queue = []; state.i = 0; state.detail = {}; state.genres = {};
-      el("load").classList.remove("off");
-      el("load").querySelector("p").textContent = "Reloading with TMDB";
-      closeSheet();
+      closeSheet(); el("load").classList.remove("off");
       refill().then(function () { if (state.queue.length) render(); });
-    }).catch(function (e) {
-      settingsSheet('<p class="msg bad">The worker answered with an error. Check that TMDB_TOKEN is set ' +
-        "as a secret and that ALLOWED_ORIGIN permits this page.</p>");
+    }).catch(function () {
+      settingsSheet('<p class="msg bad">The worker answered with an error. Check TMDB_TOKEN and ALLOWED_ORIGIN.</p>');
     });
   };
-
-  if (worker && el("wkClear")) {
-    el("wkClear").onclick = function () {
-      saveWorker("");
-      state.queue = []; state.i = 0; state.detail = {}; state.genres = {};
-      closeSheet();
-      el("load").classList.remove("off");
-      refill().then(function () { if (state.queue.length) render(); });
-    };
-  }
+  el("swap").onclick = function () {
+    try { localStorage.removeItem(K_ME); } catch (e) {}
+    location.reload();
+  };
 }
 el("pCog").onclick = function () { settingsSheet(); };
 
-/* ---------- boot ---------- */
+/* ------------------------------------------------------------------ gate */
+
+function showGate() {
+  var btns = state.users.map(function (u) {
+    return '<button class="who-btn" data-id="' + esc(u.id) + '">' +
+      '<span class="av" style="background:' + esc(u.bar_colour) + '">' + esc(u.initial) + "</span>" +
+      '<span class="nm">' + esc(u.display_name) + "</span></button>";
+  }).join("");
+  el("gate").innerHTML = "<h3>Who's swiping?</h3>" +
+    "<p>This is stored on this device. You can switch from settings.</p>" + btns;
+  el("gate").classList.add("on");
+  el("load").classList.add("off");
+  Array.prototype.forEach.call(el("gate").querySelectorAll(".who-btn"), function (node) {
+    node.onclick = function () {
+      var u = state.users.filter(function (x) { return x.id === node.dataset.id; })[0];
+      state.me = u;
+      try { localStorage.setItem(K_ME, JSON.stringify(u)); } catch (e) {}
+      el("gate").classList.remove("on");
+      el("load").classList.remove("off");
+      start();
+    };
+  });
+}
+
+/* ------------------------------------------- one-time local swipe import */
+
+function importLegacy() {
+  var raw;
+  try { raw = localStorage.getItem(K_LEGACY); } catch (e) { return Promise.resolve(); }
+  if (!raw) return Promise.resolve();
+  var old;
+  try { old = JSON.parse(raw); } catch (e) { return Promise.resolve(); }
+  var jobs = [];
+  ["shared", "solo"].forEach(function (b) {
+    Object.keys(old[b] || {}).forEach(function (k) {
+      var v = old[b][k];
+      jobs.push({ key: k, kind: b === "shared" ? "playlist_shared" : "playlist_solo", v: v });
+    });
+  });
+  if (!jobs.length) { try { localStorage.removeItem(K_LEGACY); } catch (e) {} return Promise.resolve(); }
+  var mediaRows = {}, inter = [];
+  jobs.forEach(function (j) {
+    mediaRows[j.key] = { key: j.key, source: j.key.split(":")[0], kind: j.v.kind || "movie",
+      title: j.v.title || j.key, year: j.v.year || null, poster: null };
+    inter.push({ user_id: state.me.id, media_key: j.key, kind: j.kind, value: null });
+  });
+  return sbUpsert("media", Object.keys(mediaRows).map(function (k) { return mediaRows[k]; }), "key")
+    .then(function () { return sbUpsert("interaction", inter, "user_id,media_key,kind"); })
+    .then(function () { try { localStorage.removeItem(K_LEGACY); } catch (e) {} })
+    .catch(function () {});
+}
+
+/* ------------------------------------------------------------------ boot */
 
 var booted = false;
 
 function failScreen(headline) {
   if (booted) return;
-  var order = ["genres", "movies", "shows", "tvmaze", "anime"];
+  var order = ["db", "genres", "movies", "shows", "tvmaze", "anime"];
   var lines = order.filter(function (k) { return state.diag[k]; })
     .map(function (k) { return k + " — " + esc(state.diag[k]); });
   el("load").innerHTML =
-    '<p style="font-size:14px;color:#cfcdc5;text-align:center;padding:0 32px;line-height:1.6">' +
-      esc(headline) + "</p>" +
-    (lines.length
-      ? '<p style="font-size:12px;color:#85837b;text-align:center;padding:0 28px;line-height:1.8;font-family:ui-monospace,monospace">' +
-        lines.join("<br>") + "</p>"
+    '<p style="font-size:14px;color:#cfcdc5;text-align:center;padding:0 32px;line-height:1.6">' + esc(headline) + "</p>" +
+    (lines.length ? '<p style="font-size:12px;color:#85837b;text-align:center;padding:0 28px;line-height:1.8;font-family:ui-monospace,monospace">' + lines.join("<br>") + "</p>"
       : '<p style="font-size:12px;color:#85837b;text-align:center;padding:0 28px">No source reported an error, which usually means the requests never returned.</p>') +
-    '<div style="display:flex;gap:8px;margin-top:4px">' +
-      '<button class="f" id="btnRetry">Retry</button>' +
-      '<button class="f g" id="btnNoTmdb">Run without TMDB</button>' +
-    "</div>";
+    '<div style="display:flex;gap:8px;margin-top:4px"><button class="f" id="btnRetry">Retry</button>' +
+    '<button class="f g" id="btnNoTmdb">Run without TMDB</button></div>';
   el("btnRetry").onclick = function () { location.reload(); };
   el("btnNoTmdb").onclick = function () {
     try { localStorage.setItem(K_WORKER, "none"); } catch (e) {}
@@ -828,15 +1118,31 @@ function failScreen(headline) {
   };
 }
 
-counts();
-setTimeout(function () { failScreen("Timed out waiting for the sources."); }, 14000);
+function start() {
+  setTimeout(function () { failScreen("Timed out waiting for the sources."); }, 16000);
+  loadMine()
+    .then(importLegacy)
+    .then(loadMine)
+    .then(function () { counts(); return refill(); })
+    .then(function () {
+      if (!state.queue.length) { failScreen("No source returned anything."); return; }
+      booted = true;
+      render();
+    })
+    .catch(function (e) { failScreen("The feed failed to start: " + (e && e.message ? e.message : "unknown")); });
+}
 
-refill().then(function () {
-  if (!state.queue.length) { failScreen("No source returned anything."); return; }
-  booted = true;
-  render();
+sbGet("app_user?select=id,handle,display_name,initial,bar_colour&order=created_at").then(function (rows) {
+  state.users = rows || [];
+  if (!state.users.length) { failScreen("No people in the database. Run the seed in schema.sql."); return; }
+  if (state.me) {
+    var still = state.users.filter(function (u) { return u.id === state.me.id; })[0];
+    if (still) { state.me = still; start(); return; }
+  }
+  showGate();
 }).catch(function (e) {
-  failScreen("The feed failed to start: " + (e && e.message ? e.message : "unknown error"));
+  state.diag.db = e.message;
+  failScreen("Could not reach Supabase.");
 });
 </script>
 </body>
