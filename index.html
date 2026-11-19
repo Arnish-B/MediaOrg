@@ -1246,8 +1246,9 @@ function renderLibrary() {
     if (f.list === "note" && !mi.note) return false;
     var want = Object.keys(f.genres);
     if (want.length) {
-      var have = rec.genres || [];
-      for (var i = 0; i < want.length; i++) if (have.indexOf(want[i]) < 0) return false;
+      var have = rec.genres || [], hit = false;
+      for (var i = 0; i < want.length; i++) if (have.indexOf(want[i]) >= 0) { hit = true; break; }
+      if (!hit) return false;
     }
     return true;
   }).sort(function (a, b) {
@@ -1271,7 +1272,7 @@ function renderLibrary() {
         }).join("") + "</div>"
       : '<p class="empty" style="padding:18px">Nothing matches these filters.</p>') +
     '<p class="credit" style="padding:12px 18px 0">' + shown.length + " of " + keys.length +
-    " titles you have touched. Genres filter as AND, not OR.</p>";
+    " titles you have touched. Genres match as OR — any one of them is enough.</p>";
 
   Array.prototype.forEach.call(el("prof").querySelectorAll(".fch"), function (node) {
     node.onclick = function () {
