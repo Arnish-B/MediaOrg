@@ -157,7 +157,7 @@ var DEFAULT_WORKER = "https://mediaorg.d86532an.workers.dev";
 var IMG = "https://image.tmdb.org/t/p/w780";
 var IMG_S = "https://image.tmdb.org/t/p/w185";
 
-var state = { queue: [], i: 0, shared: {}, solo: {}, detail: {}, busy: false, genres: {} };
+var state = { queue: [], i: 0, shared: {}, solo: {}, detail: {}, busy: false, genres: {}, diag: {} };
 var worker = DEFAULT_WORKER;
 
 try {
@@ -205,10 +205,16 @@ function paras(txt) {
   var mid = Math.ceil(sents.length / 2);
   return [sents.slice(0, mid).join("").trim(), sents.slice(mid).join("").trim()];
 }
-function getJSON(url) {
-  return fetch(url).then(function (r) {
-    if (!r.ok) throw new Error(r.status + " " + url);
+function getJSON(url, ms) {
+  var ctl = (typeof AbortController !== "undefined") ? new AbortController() : null;
+  var timer = setTimeout(function () { if (ctl) ctl.abort(); }, ms || 9000);
+  return fetch(url, ctl ? { signal: ctl.signal } : undefined).then(function (r) {
+    clearTimeout(timer);
+    if (!r.ok) throw new Error("HTTP " + r.status);
     return r.json();
+  }, function (e) {
+    clearTimeout(timer);
+    throw new Error((e && e.name === "AbortError") ? "timed out" : ((e && e.message) || "blocked or offline"));
   });
 }
 
@@ -323,7 +329,7 @@ function loadGenres() {
       (r[0].genres || []).forEach(function (g) { state.genres.movie[g.id] = g.name; });
       (r[1].genres || []).forEach(function (g) { state.genres.tv[g.id] = g.name; });
     })
-    .catch(function () {});
+    .catch(function (e) { state.diag.genres = e.message; });
 }
 
 function loadTmdbMovies() {
@@ -332,7 +338,7 @@ function loadTmdbMovies() {
     "vote_count.gte": 400, include_adult: false, language: "en-US"
   }).then(function (d) {
     return (d.results || []).filter(function (m) { return m.poster_path && m.overview; }).map(fromTmdbMovie);
-  }).catch(function () { return []; });
+  }).catch(function (e) { state.diag.movies = e.message; return []; });
 }
 
 function loadTmdbShows() {
@@ -341,7 +347,7 @@ function loadTmdbShows() {
     "vote_count.gte": 150, include_adult: false, language: "en-US"
   }).then(function (d) {
     return (d.results || []).filter(function (t) { return t.poster_path && t.overview; }).map(fromTmdbTv);
-  }).catch(function () { return []; });
+  }).catch(function (e) { state.diag.shows = e.message; return []; });
 }
 
 function loadTvmaze() {
@@ -349,7 +355,7 @@ function loadTvmaze() {
     return arr.filter(function (s) {
       return s.image && s.summary && s.rating && s.rating.average >= 6.8;
     }).map(fromTvmaze);
-  }).catch(function () { return []; });
+  }).catch(function (e) { state.diag.tvmaze = e.message; return []; });
 }
 
 function loadAnime() {
@@ -357,7 +363,7 @@ function loadAnime() {
     .then(function () { return getJSON("https://api.jikan.moe/v4/top/anime?page=" + (1 + rnd(14)) + "&limit=25"); })
     .then(function (j) {
       return (j.data || []).filter(function (a) { return a.synopsis && a.images; }).map(fromJikan);
-    }).catch(function () { return []; });
+    }).catch(function (e) { state.diag.anime = e.message; return []; });
 }
 
 function shuffle(a) {
@@ -797,14 +803,40 @@ el("pCog").onclick = function () { settingsSheet(); };
 
 /* ---------- boot ---------- */
 
+var booted = false;
+
+function failScreen(headline) {
+  if (booted) return;
+  var order = ["genres", "movies", "shows", "tvmaze", "anime"];
+  var lines = order.filter(function (k) { return state.diag[k]; })
+    .map(function (k) { return k + " — " + esc(state.diag[k]); });
+  el("load").innerHTML =
+    '<p style="font-size:14px;color:#cfcdc5;text-align:center;padding:0 32px;line-height:1.6">' +
+      esc(headline) + "</p>" +
+    (lines.length
+      ? '<p style="font-size:12px;color:#85837b;text-align:center;padding:0 28px;line-height:1.8;font-family:ui-monospace,monospace">' +
+        lines.join("<br>") + "</p>"
+      : '<p style="font-size:12px;color:#85837b;text-align:center;padding:0 28px">No source reported an error, which usually means the requests never returned.</p>') +
+    '<div style="display:flex;gap:8px;margin-top:4px">' +
+      '<button class="f" id="btnRetry">Retry</button>' +
+      '<button class="f g" id="btnNoTmdb">Run without TMDB</button>' +
+    "</div>";
+  el("btnRetry").onclick = function () { location.reload(); };
+  el("btnNoTmdb").onclick = function () {
+    try { localStorage.setItem(K_WORKER, "none"); } catch (e) {}
+    location.reload();
+  };
+}
+
 counts();
+setTimeout(function () { failScreen("Timed out waiting for the sources."); }, 14000);
+
 refill().then(function () {
-  if (!state.queue.length) {
-    el("load").innerHTML = '<p style="font-size:14px;color:#908e86;text-align:center;padding:0 32px;line-height:1.6">' +
-      "No sources answered.<br>Check the connection, then reload.</p>";
-    return;
-  }
+  if (!state.queue.length) { failScreen("No source returned anything."); return; }
+  booted = true;
   render();
+}).catch(function (e) {
+  failScreen("The feed failed to start: " + (e && e.message ? e.message : "unknown error"));
 });
 </script>
 </body>

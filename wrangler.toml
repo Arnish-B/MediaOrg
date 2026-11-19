@@ -1,0 +1,11 @@
+name = "reel-proxy"
+main = "worker.js"
+compatibility_date = "2026-11-01"
+
+# Set this to your Pages origin once it exists, e.g. "https://arnish-b.github.io".
+# Leave "*" only while testing: an open proxy lets anyone spend your TMDB quota.
+[vars]
+ALLOWED_ORIGIN = "https://arnish-b.github.io"
+
+# TMDB_TOKEN is a secret, not a var. Never put it in this file.
+#   npx wrangler secret put TMDB_TOKEN
