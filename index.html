@@ -193,16 +193,29 @@ h1{font-size:24px;line-height:1.18;font-weight:600;letter-spacing:-.022em}
 .rrow .val{font-size:19px;font-weight:600;font-variant-numeric:tabular-nums}
 .rrow .abs{font-size:12.5px;color:#55544e;font-style:italic}
 .rrow .sub{font-size:11px;color:#6a6963;margin-top:2px}
-.lrow{display:flex;align-items:center;gap:10px;padding:10px 0;
+.lrow{display:flex;align-items:center;gap:11px;padding:10px 0;
   border-bottom:.5px solid rgba(255,255,255,.06)}
-.lbar{width:3px;height:36px;flex:0 0 3px;display:flex;flex-direction:column;overflow:hidden}
-.lbar i{flex:1}
 .lrow .th{width:38px;height:56px;border-radius:5px;background:#1b1b21;flex:0 0 38px;
   background-size:cover;background-position:center}
-.lrow .lt{font-size:14px;flex:1;line-height:1.3}
-.lrow .ly{font-size:12px;color:#6a6963}
-.lrow .who{font-size:10px;width:19px;height:19px;border-radius:50%;display:flex;
-  align-items:center;justify-content:center;font-weight:600;flex:0 0 19px}
+.lrow .lt{font-size:14px;flex:1;line-height:1.3;min-width:0}
+.lrow .ly{font-size:12px;color:#6a6963;flex:0 0 auto}
+
+/* Avatar stack. The gap between overlapping circles is not a margin: it is a
+   ring painted in the sheet's own background colour, so each avatar punches a
+   crescent out of the one beneath it. That is how Primer, Fluent and Nuxt all
+   build this, and it is the only approach that stays legible once the circles
+   are tinted rather than photographic. Overlap is 7 of 22px, about a third,
+   which is the range those systems converge on. */
+.wstack{display:flex;align-items:center;flex:0 0 auto}
+.wa{position:relative;width:22px;height:22px;border-radius:50%;flex:0 0 22px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:10px;font-weight:700;letter-spacing:.01em;
+  box-shadow:0 0 0 2px #141418}
+.wa + .wa{margin-left:-7px}
+/* A title can sit on the shared list and your private one at once. The dot
+   marks the private half, and lives on the lower left, away from the overlap. */
+.wa .pv{position:absolute;left:-1px;bottom:-1px;width:8px;height:8px;border-radius:50%;
+  background:#7F77DD;box-shadow:0 0 0 1.6px #141418}
 
 .stars{display:flex;flex-wrap:wrap;gap:7px;margin:14px 0 4px}
 .star{flex:0 0 calc(20% - 6px);padding:12px 0;border-radius:10px;background:#1b1b21;
@@ -1310,25 +1323,60 @@ el("aNote").onclick = function () {
 
 /* ----------------------------------------------------------------- lists */
 
-function listRows(keys, mode) {
+function hexA(hex, a) {
+  var h = String(hex || "").replace("#", "");
+  if (h.length !== 6) return "rgba(255,255,255,.14)";
+  var r = parseInt(h.slice(0, 2), 16), g = parseInt(h.slice(2, 4), 16), b = parseInt(h.slice(4, 6), 16);
+  if (isNaN(r) || isNaN(g) || isNaN(b)) return "rgba(255,255,255,.14)";
+  return "rgba(" + r + "," + g + "," + b + "," + a + ")";
+}
+
+// The seeded bar colours are mid-tone, which is right for a fill but too dark
+// for a letter sitting on that fill. Lift it toward white for the glyph.
+function lift(hex, t) {
+  var h = String(hex || "").replace("#", "");
+  if (h.length !== 6) return "#e4e2dc";
+  var c = [0, 2, 4].map(function (i) { return parseInt(h.slice(i, i + 2), 16); });
+  if (c[0] !== c[0] || c[1] !== c[1] || c[2] !== c[2]) return "#e4e2dc";
+  return "rgb(" + c.map(function (v) { return Math.round(v + (255 - v) * t); }).join(",") + ")";
+}
+
+/* One avatar per person who has put this title on a list you are allowed to
+   see: yours for either of your lists, theirs only for the shared one, because
+   their private list is private. You come first and sit on top, every time, so
+   the stack never reorders itself between rows. */
+function whoStack(k) {
+  var mi = state.mine[k] || blank(), th = state.theirs[k] || blank();
+  var other = state.users.filter(function (u) { return !state.me || u.id !== state.me.id; })[0];
+  var av = [];
+  if (mi.shared || mi.solo) {
+    av.push({ initial: state.me ? state.me.initial : "?",
+      colour: state.me ? state.me.bar_colour : "#1D9E75",
+      solo: !!mi.solo,
+      label: mi.solo && !mi.shared ? "you, privately" : (mi.solo ? "you, shared and privately" : "you") });
+  }
+  if (th.shared && other) {
+    av.push({ initial: other.initial, colour: other.bar_colour, solo: false,
+      label: other.display_name });
+  }
+  if (!av.length) return "";
+  return '<div class="wstack" role="img" aria-label="' +
+    esc("Listed by " + av.map(function (a) { return a.label; }).join(" and ")) + '">' +
+    av.map(function (a, n) {
+      return '<span class="wa' + (a.solo ? " solo" : "") + '" style="z-index:' + (9 - n) +
+        ";background:" + hexA(a.colour, 0.26) + ";color:" + lift(a.colour, 0.55) + '">' +
+        esc(a.initial) + (a.solo ? '<i class="pv"></i>' : "") + "</span>";
+    }).join("") + "</div>";
+}
+
+function listRows(keys) {
   return keys.map(function (k) {
-    var rec = mediaCache[k] || {}, mi = state.mine[k] || blank(), th = state.theirs[k] || blank();
-    var bars = [];
-    if (mi.shared || th.shared) bars.push('<i style="background:#1D9E75"></i>');
-    if (mi.solo) bars.push('<i style="background:#7F77DD"></i>');
-    var who = "";
-    if (mode === "shared") {
-      if (mi.shared && th.shared) who = '<div class="who" style="background:rgba(239,159,39,.25);color:#fac775">2</div>';
-      else if (th.shared) who = '<div class="who" style="background:rgba(29,158,117,.22);color:#9fe1cb">' +
-        esc((otherName() || "?").charAt(0)) + "</div>";
-      else who = '<div class="who" style="background:rgba(29,158,117,.22);color:#9fe1cb">' +
-        esc(state.me ? state.me.initial : "?") + "</div>";
-    }
-    return '<div class="lrow"><div class="lbar">' + (bars.join("") || '<i style="background:#333"></i>') + "</div>" +
+    var rec = mediaCache[k] || {}, mi = state.mine[k] || blank();
+    return '<div class="lrow">' +
       '<div class="th" style="' + (rec.poster ? "background-image:url('" + esc(rec.poster) + "')" : "") + '"></div>' +
       '<div class="lt">' + esc(rec.title || k) +
       (mi.rating != null ? ' <span style="color:#5dcaa5;font-size:12px">' + mi.rating.toFixed(1) + "</span>" : "") +
-      "</div>" + who + '<div class="ly">' + (rec.year || "") + "</div></div>";
+      "</div>" + whoStack(k) + '<div class="ly">' + (rec.year || "") + "</div></div>";
   }).join("");
 }
 
@@ -1374,10 +1422,10 @@ function showList(mode) {
   }
   paint('<p class="msg">Loading…</p>');
   loadMediaRows(keys).then(function () {
-    paint(listRows(keys, listMode) + '<p class="credit">' + (listMode === "mutual"
+    paint(listRows(keys) + '<p class="credit">' + (listMode === "mutual"
       ? "Titles you have both swiped right. This is the list that decides what you watch together."
       : listMode === "shared"
-        ? "Everything either of you put forward. A single initial is a request; a 2 is a match."
+        ? "Everything either of you put forward. One initial is a request; both is a match."
         : "Yours alone. " + esc(otherName()) + " never sees this list.") + "</p>");
   });
 }
