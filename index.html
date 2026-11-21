@@ -175,7 +175,29 @@ h1{font-size:24px;line-height:1.18;font-weight:600;letter-spacing:-.022em}
 #shHead h2{font-size:16px;font-weight:600;flex:1}
 #shClose{font-size:22px;color:#85837b;cursor:pointer;line-height:1;padding:0 4px}
 #shBody{padding:8px 20px calc(24px + env(safe-area-inset-bottom));overflow-y:auto;
-  -webkit-overflow-scrolling:touch}
+  -webkit-overflow-scrolling:touch;flex:1 1 auto;min-height:0}
+/* The footer is a sibling of the scrolling body, not content inside it, so it
+   cannot be pushed off screen by a long list however the list grows. */
+#shFoot{flex:0 0 auto;display:none;gap:8px;align-items:center;
+  padding:11px 20px calc(13px + env(safe-area-inset-bottom));
+  border-top:.5px solid rgba(255,255,255,.1);background:#17171c}
+#shFoot.on{display:flex}
+#shFoot .f{margin-top:0;flex:1}
+#shFoot .g{margin-left:0;flex:0 0 auto}
+#sheet.foot #shBody{padding-bottom:10px}
+
+/* Titles already at this rating, as posters rather than text rows: legible at
+   arm's length, and scrolling sideways so it never competes with the sheet's
+   own vertical scroll. */
+.rstrip{display:flex;gap:9px;overflow-x:auto;margin-top:10px;padding-bottom:4px;
+  -webkit-overflow-scrolling:touch;touch-action:pan-x;overscroll-behavior-x:contain;
+  scroll-snap-type:x proximity}
+.rstrip::-webkit-scrollbar{display:none}
+.rcard{flex:0 0 80px;scroll-snap-align:start}
+.rcard .rp{width:80px;height:116px;border-radius:7px;background:#1b1b21;
+  background-size:cover;background-position:center}
+.rcard .rt{font-size:10.5px;color:#9a988f;margin-top:5px;line-height:1.25;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 #veil{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:11;opacity:0;
   pointer-events:none;transition:opacity .22s}
 #veil.on{opacity:1;pointer-events:auto}
@@ -377,6 +399,7 @@ button.f:disabled{opacity:.45}
   <div id="grab"></div>
   <div id="shHead"><h2>—</h2><div id="shClose" role="button" aria-label="Close">×</div></div>
   <div id="shBody"></div>
+  <div id="shFoot"></div>
 </div>
 
 <div id="prof">
@@ -1157,9 +1180,14 @@ document.addEventListener("keydown", function (e) {
 
 /* ---------------------------------------------------------------- sheets */
 
-function openSheet(title, html) {
+function openSheet(title, html, footHTML) {
   el("shHead").querySelector("h2").textContent = title;
   el("shBody").innerHTML = html;
+  el("shBody").scrollTop = 0;
+  var f = el("shFoot");
+  f.innerHTML = footHTML || "";
+  f.className = footHTML ? "on" : "";
+  el("sheet").classList.toggle("foot", !!footHTML);
   el("sheet").classList.add("on");
   el("veil").classList.add("on");
 }
@@ -1249,21 +1277,22 @@ function rateSheet(it, picked) {
     var panel = "";
     if (sel != null) {
       panel = same.length
-        ? '<p class="msg" style="margin-top:18px">You have rated ' + same.length + " other " +
+        ? '<p class="msg" style="margin-top:16px">You have rated ' + same.length + " other " +
           (same.length === 1 ? "title" : "titles") + " exactly " + sel.toFixed(1) + ":</p>" +
-          same.slice(0, 40).map(function (r) {
+          '<div class="rstrip">' + same.slice(0, 40).map(function (r) {
             var rec = mediaCache[r.key] || {};
-            return '<div class="lrow"><div class="lt">' + esc(rec.title || r.key) + "</div>" +
-              '<div class="ly">' + (rec.year || "") + "</div></div>";
-          }).join("")
-        : '<p class="msg" style="margin-top:18px">Nothing else sits at ' + sel.toFixed(1) +
+            return '<div class="rcard"><div class="rp" style="' +
+              (rec.poster ? "background-image:url('" + esc(rec.poster) + "')" : "") + '"></div>' +
+              '<div class="rt">' + esc(rec.title || r.key) + "</div></div>";
+          }).join("") + "</div>"
+        : '<p class="msg" style="margin-top:16px">Nothing else sits at ' + sel.toFixed(1) +
           " yet. This title defines the shelf.</p>";
     }
     openSheet("Rate — " + it.title,
-      '<div class="stars">' + stars + "</div>" + panel +
-      '<div><button class="f" id="rSave"' + (sel == null ? " disabled" : "") + ">Save" +
+      '<div class="stars">' + stars + "</div>" + panel,
+      '<button class="f" id="rSave"' + (sel == null ? " disabled" : "") + ">Save" +
         (sel != null ? " " + sel.toFixed(1) : "") + "</button>" +
-      (mi.rating != null ? '<button class="f g" id="rClear">Clear</button>' : "") + "</div>");
+      (mi.rating != null ? '<button class="f g" id="rClear">Clear</button>' : ""));
 
     Array.prototype.forEach.call(el("shBody").querySelectorAll(".star"), function (node) {
       node.onclick = function () {
