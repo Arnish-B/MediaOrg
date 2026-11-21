@@ -17,8 +17,14 @@ html,body{height:100%;overflow:hidden;background:#0a0a0c;color:#f2f1ee;
   -webkit-font-smoothing:antialiased}
 #stage{position:fixed;inset:0;overflow:hidden}
 
-.card{position:absolute;inset:0;will-change:transform;touch-action:none;
-  backface-visibility:hidden;transform:translate3d(0,0,0)}
+#track{position:absolute;inset:0;will-change:transform;touch-action:none;
+  transform:translate3d(0,0,0)}
+#track.anim{transition:transform .32s cubic-bezier(.19,.72,.26,1)}
+.card{position:absolute;left:0;right:0;height:100%;will-change:transform;
+  backface-visibility:hidden;transform:translate3d(0,0,0);overflow:hidden}
+.card.s0{top:-100%}
+.card.s1{top:0}
+.card.s2{top:100%}
 .card.anim{transition:transform .26s cubic-bezier(.22,.61,.36,1)}
 .poster{position:absolute;inset:0;background-size:cover;background-position:center;
   background-color:#17171b;transform:translateZ(0)}
@@ -34,29 +40,35 @@ h1{font-size:24px;line-height:1.18;font-weight:600;letter-spacing:-.022em}
 .meta{font-size:12.5px;color:#9a988f;margin-top:6px;display:flex;gap:8px;flex-wrap:wrap}
 .meta span:not(:last-child)::after{content:"·";margin-left:8px;color:#55544e}
 .chips{margin-top:9px}
+.chips:empty{display:none;margin-top:0}
 .chip{font-size:10.5px;padding:2px 8px;border-radius:5px;margin-right:4px;display:inline-block}
 
-#desc{position:relative;margin-top:12px;max-height:25vh;overflow:hidden;
-  transition:max-height .22s ease}
-#desc.open{max-height:58vh;overflow-y:auto;-webkit-overflow-scrolling:touch;
-  padding-right:4px;touch-action:pan-y}
-#desc::-webkit-scrollbar{width:3px}
-#desc::-webkit-scrollbar-thumb{background:rgba(255,255,255,.16);border-radius:2px}
+.desc{position:relative;margin-top:12px;max-height:25vh;overflow:hidden;
+  transition:max-height .24s ease}
+.desc.open{max-height:56vh;overflow-y:auto;-webkit-overflow-scrolling:touch;
+  padding-right:4px;touch-action:pan-y;overscroll-behavior:contain}
+.desc::-webkit-scrollbar{width:3px}
+.desc::-webkit-scrollbar-thumb{background:rgba(255,255,255,.16);border-radius:2px}
 .short{font-size:15px;line-height:1.5;color:#e4e2dc}
 .long{font-size:13.5px;line-height:1.62;margin-top:12px;color:#a8a69d;display:none}
-#desc.open .long{display:block}
+.desc.open .long{display:block}
 .long p{margin-bottom:9px}
 .samenote{font-size:11.5px;color:#6a6963;margin-top:9px;font-style:italic;display:none}
-#desc.open .samenote{display:block}
-#fade{position:absolute;left:0;right:0;bottom:0;height:34px;pointer-events:none;
+.desc.open .samenote{display:block}
+.fade{position:absolute;left:0;right:0;bottom:0;height:34px;pointer-events:none;
   background:linear-gradient(to top,rgba(10,10,12,.95),rgba(10,10,12,0))}
-#desc.open #fade{display:none}
-#more{display:inline-block;margin-top:7px;font-size:13px;color:#9a988f;cursor:pointer;
+.desc.open .fade{display:none}
+.more{display:inline-block;margin-top:7px;font-size:13px;color:#9a988f;cursor:pointer;
   font-weight:500;padding:3px 0}
 
-.seasons{display:flex;gap:10px;overflow-x:auto;margin-top:14px;padding-bottom:4px;
-  scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;touch-action:pan-x}
+.seasons{display:none;gap:10px;overflow-x:auto;margin-top:16px;padding-bottom:4px;
+  scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;touch-action:pan-x;
+  overscroll-behavior:contain}
+.desc.open .seasons.has{display:flex}
 .seasons::-webkit-scrollbar{display:none}
+.seasonsLbl{display:none;font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+  color:#6a6963;margin-top:18px;font-weight:600}
+.desc.open .seasonsLbl.has{display:block}
 .season{flex:0 0 92px;scroll-snap-align:start;cursor:pointer}
 .season .sp{width:92px;height:132px;border-radius:8px;background:#1d1d22;
   background-size:cover;background-position:center}
@@ -122,9 +134,9 @@ h1{font-size:24px;line-height:1.18;font-weight:600;letter-spacing:-.022em}
 .ovl{position:absolute;top:calc(78px + env(safe-area-inset-top));padding:6px 13px;
   border-radius:9px;border:2.5px solid;font-size:14px;font-weight:800;letter-spacing:.07em;
   text-transform:uppercase;opacity:0;pointer-events:none;z-index:5;white-space:nowrap}
-#ovR{left:22px;transform:rotate(-10deg);border-color:#5dcaa5;color:#9fe1cb;
+.ovR{left:22px;transform:rotate(-10deg);border-color:#5dcaa5;color:#9fe1cb;
   background:rgba(29,158,117,.16)}
-#ovL{right:22px;transform:rotate(10deg);border-color:#afa9ec;color:#cecbf6;
+.ovL{right:22px;transform:rotate(10deg);border-color:#afa9ec;color:#cecbf6;
   background:rgba(127,119,221,.16)}
 
 .seg{display:flex;gap:3px;background:#1a1a20;border-radius:11px;padding:3px;margin:6px 0 14px}
@@ -197,6 +209,27 @@ h1{font-size:24px;line-height:1.18;font-weight:600;letter-spacing:-.022em}
   border:.5px solid rgba(255,255,255,.1);text-align:center;font-size:15px;font-weight:600;
   cursor:pointer;font-variant-numeric:tabular-nums}
 .star.sel{background:#1d9e75;color:#04342c;border-color:#1d9e75}
+
+.srow{display:flex;align-items:center;gap:11px;padding:9px 0;cursor:pointer;
+  border-bottom:.5px solid rgba(255,255,255,.06)}
+.srow:active{background:rgba(255,255,255,.03)}
+.srow .th{width:40px;height:58px;border-radius:5px;background:#1b1b21;flex:0 0 40px;
+  background-size:cover;background-position:center}
+.srow .lt{font-size:14px;flex:1;line-height:1.3;min-width:0}
+.srow .ly{font-size:11.5px;color:#6a6963;margin-top:2px}
+.sbadge{font-size:10.5px;font-weight:700;color:#5dcaa5;background:rgba(93,202,165,.14);
+  padding:2px 6px;border-radius:5px;flex:0 0 auto}
+.slog{font-size:11.5px;font-weight:600;font-family:inherit;padding:6px 11px;
+  border-radius:7px;background:#23232b;color:#cfcdc5;border:.5px solid rgba(255,255,255,.12);
+  cursor:pointer;flex:0 0 auto}
+.slog:active{background:#2e2e38}
+.logrow{display:flex;gap:8px;margin-top:10px}
+.logb{flex:1;padding:13px 10px;border-radius:10px;background:#1b1b21;color:#e4e2dc;
+  border:.5px solid rgba(255,255,255,.12);font-size:13px;font-weight:500;
+  font-family:inherit;cursor:pointer;text-align:center}
+.logb.on{background:rgba(29,158,117,.18);border-color:rgba(93,202,165,.6);color:#9fe1cb}
+.logb.pri{background:#1d9e75;color:#04342c;border-color:#1d9e75;font-weight:600}
+#sres{margin-top:4px}
 
 label.f{display:block;font-size:12px;color:#908e86;margin:16px 0 6px}
 input.f,textarea.f{width:100%;padding:11px 13px;border-radius:9px;background:#1b1b21;color:#f2f1ee;
@@ -282,7 +315,7 @@ button.f:disabled{opacity:.45}
 </head>
 <body>
 
-<div id="stage"></div>
+<div id="stage"><div id="track"></div></div>
 
 <div class="corner" id="cLeft" role="button" aria-label="Cast">
   <svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.4"/><path d="M2.6 20c0-3.6 2.9-5.6 6.4-5.6s6.4 2 6.4 5.6"/><path d="M16.5 5.2a3.4 3.4 0 0 1 0 6.1"/><path d="M18.6 14.8c2 .7 3.4 2.3 3.4 5.2"/></svg>
@@ -315,6 +348,10 @@ button.f:disabled{opacity:.45}
   <div class="nv on" id="nvFeed" role="button" aria-label="Feed">
     <svg viewBox="0 0 24 24"><rect x="3.2" y="3.2" width="17.6" height="17.6" rx="3.4"/><path d="M10 8.6l5.4 3.4-5.4 3.4z"/></svg>
     <span>Feed</span>
+  </div>
+  <div class="nv" id="nvLog" role="button" aria-label="Log a title">
+    <svg viewBox="0 0 24 24"><circle cx="10.6" cy="10.6" r="6.4"/><path d="M15.4 15.4L21 21"/><path d="M10.6 7.8v5.6M7.8 10.6h5.6"/></svg>
+    <span>Log</span>
   </div>
   <div class="nv" id="nvMe" role="button" aria-label="Profile">
     <span class="av" id="navAv">?</span><span>You</span>
@@ -524,15 +561,21 @@ function loadMediaRows(keys) {
 
 /* ---------------------------------------------------------- throttles */
 
-function gate(ms) {
-  var last = 0;
-  return function () {
-    var wait = Math.max(0, ms - (Date.now() - last));
-    last = Date.now() + wait;
-    return new Promise(function (r) { setTimeout(r, wait); });
-  };
+function bucket(capacity, refillMs) {
+  var tokens = capacity, last = Date.now();
+  function take() {
+    var now = Date.now();
+    tokens = Math.min(capacity, tokens + (now - last) / refillMs);
+    last = now;
+    if (tokens >= 1) { tokens -= 1; return Promise.resolve(); }
+    var wait = Math.ceil((1 - tokens) * refillMs);
+    return new Promise(function (r) { setTimeout(function () { take().then(r); }, wait); });
+  }
+  return take;
 }
-var gTmdb = gate(260), gJikan = gate(420);
+// TMDB publishes 40 requests per 10s. A bucket holds that average but lets the
+// four boot calls go out at once, instead of queueing them 260ms apart.
+var gTmdb = bucket(10, 250), gJikan = bucket(2, 420);
 function tmdb(path, params) {
   if (!worker) return Promise.reject(new Error("no worker"));
   var q = new URLSearchParams(params || {}).toString();
@@ -551,7 +594,7 @@ function fromTmdbMovie(m) {
     kind: "movie", title: m.title || m.original_title, tagline: null,
     year: m.release_date ? parseInt(m.release_date.slice(0, 4), 10) : null,
     poster: m.poster_path ? IMG + m.poster_path : null,
-    genres: genreNames(m.genre_ids, "movie"), runtime: null,
+    genres: genreNames(m.genre_ids, "movie"), _gids: m.genre_ids || null, runtime: null,
     descShort: clip(full, 230), descLong: full, thin: full.length <= 260, imdb: null,
     ratings: { tmdb: m.vote_average ? Math.round(m.vote_average * 10) / 10 : null,
                tmdbVotes: m.vote_count || null }, extra: null };
@@ -562,7 +605,7 @@ function fromTmdbTv(t) {
     kind: "show", title: t.name || t.original_name, tagline: null,
     year: t.first_air_date ? parseInt(t.first_air_date.slice(0, 4), 10) : null,
     poster: t.poster_path ? IMG + t.poster_path : null,
-    genres: genreNames(t.genre_ids, "tv"), runtime: null,
+    genres: genreNames(t.genre_ids, "tv"), _gids: t.genre_ids || null, runtime: null,
     descShort: clip(full, 230), descLong: full, thin: full.length <= 260, imdb: null,
     ratings: { tmdb: t.vote_average ? Math.round(t.vote_average * 10) / 10 : null,
                tmdbVotes: t.vote_count || null }, extra: null };
@@ -633,13 +676,34 @@ function shuffle(a) {
   for (var i = a.length - 1; i > 0; i--) { var j = rnd(i + 1), t = a[i]; a[i] = a[j]; a[j] = t; }
   return a;
 }
+function backfillGenres() {
+  var touched = false;
+  state.queue.forEach(function (it) {
+    if (it._gids && (!it.genres || !it.genres.length)) {
+      it.genres = genreNames(it._gids, it.sourceKind === "tv" ? "tv" : "movie");
+      if (it.genres.length) touched = true;
+    }
+  });
+  if (!touched) return;
+  var cu = current();
+  var mm = q(".metaLine");
+  if (!cu || !mm || !cu.genres || !cu.genres.length) return;
+  var bits = [];
+  if (cu.year) bits.push("<span>" + cu.year + "</span>");
+  bits.push("<span>" + esc(cu.genres.slice(0, 3).join(", ")) + "</span>");
+  if (cu.runtime) bits.push("<span>" + cu.runtime + " min</span>");
+  if (cu.extra) bits.push("<span>" + esc(cu.extra) + "</span>");
+  mm.innerHTML = bits.join("");
+}
+
 function refill() {
   if (state.busy) return Promise.resolve();
   state.busy = true;
-  return loadGenres().then(function () {
-    return Promise.all(worker ? [loadTmdbMovies(), loadTmdbShows(), loadAnime()]
-                              : [loadTvmaze(), loadAnime()]);
-  }).then(function (res) {
+  // Genre names only decorate the meta line, so they are never waited on.
+  loadGenres().then(backfillGenres);
+  return Promise.all(worker ? [loadTmdbMovies(), loadTmdbShows(), loadAnime()]
+                            : [loadTvmaze(), loadAnime()])
+  .then(function (res) {
     var mixed = worker
       ? shuffle(res[0]).slice(0, 14).concat(shuffle(res[1]).slice(0, 10)).concat(shuffle(res[2]).slice(0, 8))
       : shuffle(res[0]).slice(0, 26).concat(shuffle(res[1]).slice(0, 9));
@@ -735,38 +799,49 @@ function chipsFor(it) {
 function cardHTML(it) {
   var bits = [];
   if (it.year) bits.push("<span>" + it.year + "</span>");
-  if (it.genres.length) bits.push("<span>" + esc(it.genres.slice(0, 3).join(", ")) + "</span>");
+  if (it.genres && it.genres.length) bits.push("<span>" + esc(it.genres.slice(0, 3).join(", ")) + "</span>");
   if (it.runtime) bits.push("<span>" + it.runtime + " min</span>");
   if (it.extra) bits.push("<span>" + esc(it.extra) + "</span>");
   var longHTML = paras(it.descLong).map(function (p) { return "<p>" + esc(p) + "</p>"; }).join("");
   var note = it.thin
     ? '<p class="samenote">This source publishes a single synopsis, so the long description is the same text set out in full.</p>'
     : "";
-  var ch = chipsFor(it);
   return '<div class="poster" style="' + (it.poster ? "background-image:url('" + esc(it.poster) + "')" : "") + '"></div>' +
     '<div class="scrim"></div>' +
-    '<div class="ovl" id="ovR">Shared</div><div class="ovl" id="ovL">Only me</div>' +
+    '<div class="ovl ovR">Shared</div><div class="ovl ovL">Only me</div>' +
     '<div class="body">' +
       '<div class="kind">' + esc(it.kind) + "</div>" +
       "<h1>" + esc(it.title) + "</h1>" +
-      '<div class="tag" id="tagLine"></div>' +
-      '<div class="meta" id="metaLine">' + bits.join("") + "</div>" +
-      (ch ? '<div class="chips">' + ch + "</div>" : "") +
-      '<div id="desc">' +
+      '<div class="tag tagLine"></div>' +
+      '<div class="meta metaLine">' + bits.join("") + "</div>" +
+      '<div class="chips">' + chipsFor(it) + "</div>" +
+      '<div class="desc">' +
         '<p class="short">' + esc(it.descShort || "No synopsis available.") + "</p>" +
         '<div class="long">' + longHTML + "</div>" + note +
-        '<div id="fade"></div>' +
+        '<div class="seasonsLbl">Seasons</div>' +
+        '<div class="seasons"></div>' +
+        '<div class="fade"></div>' +
       "</div>" +
-      '<span id="more">… more</span>' +
-      '<div class="seasons" id="seasonStrip"></div>' +
+      '<span class="more">… more</span>' +
     "</div>";
 }
 
-function bindDesc() {
-  var d = el("desc"), more = el("more");
+/* -------------------------------------------------- the three-card window */
+
+var nodes = [];
+var animating = false;
+var navGen = 0;
+
+function curNode() { return nodes[1] || null; }
+function q(sel) { var n = curNode(); return n ? n.querySelector(sel) : null; }
+function current() { return state.queue[state.i]; }
+
+function bindDesc(node) {
+  var d = node.querySelector(".desc"), more = node.querySelector(".more");
   if (!d || !more) return;
   more.onclick = function (ev) {
     ev.stopPropagation();
+    if (node !== curNode()) return;
     state.expanded = !state.expanded;
     d.classList.toggle("open", state.expanded);
     more.textContent = state.expanded ? "… less" : "… more";
@@ -774,90 +849,152 @@ function bindDesc() {
   };
 }
 
-function paintDetail(it, d) {
-  if (d.tagline) { var t = el("tagLine"); if (t) t.textContent = d.tagline; }
+function paintDetail(node, it, d) {
+  if (!node || node._key !== it.key) return;
+  if (d.tagline) { var t = node.querySelector(".tagLine"); if (t) t.textContent = d.tagline; }
   if (d.runtime && !it.runtime) {
     it.runtime = d.runtime;
-    var mm = el("metaLine");
+    var mm = node.querySelector(".metaLine");
     if (mm) mm.insertAdjacentHTML("beforeend", "<span>" + d.runtime + " min</span>");
   }
   if (d.imdb) it.imdb = d.imdb;
-  var sp = el("seasonStrip");
-  if (!sp || !d.seasons || !d.seasons.length) return;
-  sp.innerHTML = d.seasons.map(function (s, n) {
+  var sp = node.querySelector(".seasons"), lb = node.querySelector(".seasonsLbl");
+  if (!sp) return;
+  if (!d.seasons || !d.seasons.length) { sp.classList.remove("has"); if (lb) lb.classList.remove("has"); return; }
+  sp.classList.add("has");
+  if (lb) lb.classList.add("has");
+  sp.innerHTML = d.seasons.map(function (sn, n) {
     return '<div class="season" data-s="' + n + '">' +
-      '<div class="sp" style="' + (s.poster ? "background-image:url('" + esc(s.poster) + "')" : "") + '"></div>' +
-      '<div class="sn">' + esc(s.name) + "</div>" +
-      '<div class="se">' + (s.episodes ? s.episodes + " ep" : "") +
-        (s.year ? (s.episodes ? " · " : "") + s.year : "") + "</div></div>";
+      '<div class="sp" style="' + (sn.poster ? "background-image:url('" + esc(sn.poster) + "')" : "") + '"></div>' +
+      '<div class="sn">' + esc(sn.name) + "</div>" +
+      '<div class="se">' + (sn.episodes ? sn.episodes + " ep" : "") +
+        (sn.year ? (sn.episodes ? " · " : "") + sn.year : "") + "</div></div>";
   }).join("");
-  Array.prototype.forEach.call(sp.querySelectorAll(".season"), function (node) {
-    node.onclick = function () {
-      var s = d.seasons[parseInt(node.dataset.s, 10)];
-      openSheet(s.name,
-        (s.episodes ? '<p class="msg">' + s.episodes + " episodes" + (s.year ? ", from " + s.year : "") + "</p>" : "") +
-        '<p class="short" style="margin-top:12px">' + esc(s.summary || "No season synopsis from this source.") + "</p>" +
+  Array.prototype.forEach.call(sp.querySelectorAll(".season"), function (el2) {
+    el2.onclick = function (ev) {
+      ev.stopPropagation();
+      var sn = d.seasons[parseInt(el2.dataset.s, 10)];
+      openSheet(sn.name,
+        (sn.episodes ? '<p class="msg">' + sn.episodes + " episodes" + (sn.year ? ", from " + sn.year : "") + "</p>" : "") +
+        '<p class="short" style="margin-top:12px">' + esc(sn.summary || "No season synopsis from this source.") + "</p>" +
         '<p class="credit">Per-episode rating and notes arrive in V1.</p>');
     };
   });
 }
 
-var card = null;
-function current() { return state.queue[state.i]; }
+function preload(it) {
+  if (!it || !it.poster) return;
+  var im = new Image();
+  im.src = it.poster;
+  if (im.decode) im.decode().catch(function () {});
+}
+
+function fillNode(node, it) {
+  if (!it) { node.style.visibility = "hidden"; node._key = null; return; }
+  node.style.visibility = "";
+  if (node._key === it.key) return;
+  node._key = it.key;
+  node.innerHTML = cardHTML(it);
+  bindDesc(node);
+  var have = state.detail[it.key];
+  if (have) paintDetail(node, it, have);
+  else detailFor(it).then(function (d) { paintDetail(node, it, d); });
+}
+
+function rotate(dir) {
+  if (dir > 0) nodes.push(nodes.shift());
+  else nodes.unshift(nodes.pop());
+  for (var i = 0; i < 3; i++) nodes[i].className = "card s" + i;
+}
+
+function renderWindow() {
+  var it = current();
+  if (!it) return;
+  var tr = el("track");
+  if (!nodes.length) {
+    for (var i = 0; i < 3; i++) {
+      var n = document.createElement("div");
+      n.className = "card s" + i;
+      n._key = null;
+      tr.appendChild(n);
+      nodes.push(n);
+    }
+    bindGestures(tr);
+  }
+  tr.classList.remove("anim");
+  void tr.offsetHeight;
+  tr.style.transform = "translate3d(0,0,0)";
+  nodes.forEach(function (n) { n.classList.remove("anim"); n.style.transform = "translate3d(0,0,0)"; });
+
+  fillNode(nodes[0], state.queue[state.i - 1]);
+  fillNode(nodes[1], it);
+  fillNode(nodes[2], state.queue[state.i + 1]);
+
+  state.expanded = false;
+  nodes.forEach(function (n) {
+    var d = n.querySelector(".desc"), m = n.querySelector(".more");
+    if (d) { d.classList.remove("open"); d.scrollTop = 0; }
+    if (m) m.textContent = "… more";
+  });
+
+  el("load").classList.add("off");
+  paintRail();
+  if (state.queue.length - state.i < 8) refill();
+  preload(state.queue[state.i + 2]);
+  preload(state.queue[state.i - 2]);
+}
 
 function paintRail() {
   var it = current(); if (!it) return;
   var mi = state.mine[it.key] || blank();
   var ew = el("aWatched");
   ew.className = "act" + (mi.watched ? " on" : "");
-  ew.querySelector(".lbl").textContent = mi.watched ? "watched" : "watched";
   el("aNote").className = "act" + (mi.note ? " on" : "");
   var rate = el("aRate");
   rate.className = "act" + (mi.rating != null ? " on" : "");
   rate.querySelector(".lbl").textContent = mi.rating != null ? mi.rating.toFixed(1) : "rate";
 }
 
-function render() {
-  var it = current();
-  if (!it) return;
-  if (!card) {
-    card = document.createElement("div");
-    card.className = "card";
-    el("stage").appendChild(card);
-    bindGestures(card);
+function commitAdvance(dir, skipTrack) {
+  if (animating) return;
+  animating = true;
+  var gen = ++navGen;
+  fillNode(nodes[dir > 0 ? 2 : 0], state.queue[state.i + dir]);
+  var ms = 0;
+  if (!skipTrack) {
+    var tr = el("track");
+    tr.classList.add("anim");
+    tr.style.transform = "translate3d(0," + (dir > 0 ? "-100%" : "100%") + ",0)";
+    ms = 320;
   }
-  state.expanded = false;
-  card.classList.remove("anim");
-  card.innerHTML = cardHTML(it);
-  card.style.transform = "translate3d(0,0,0)";
-  bindDesc();
-  el("load").classList.add("off");
-  paintRail();
-  detailFor(it).then(function (d) { if (current() === it) paintDetail(it, d); });
-  if (state.queue.length - state.i < 8) refill();
-  var nx = state.queue[state.i + 1];
-  if (nx && nx.poster) {
-    var im = new Image();
-    im.src = nx.poster;
-    if (im.decode) im.decode().catch(function () {});
-  }
+  setTimeout(function () {
+    if (gen !== navGen) return;
+    state.i += dir;
+    rotate(dir);
+    animating = false;
+    renderWindow();
+    cacheFeed();
+  }, ms);
 }
 
-function advance(dir) {
+function advance(dir, skipTrack) {
+  if (animating) return;
   var ni = state.i + dir;
-  if (ni < 0) { bounce(); return; }
+  if (ni < 0) { bounce(1); return; }
   if (ni >= state.queue.length) {
-    refill().then(function () { if (state.queue[ni]) { state.i = ni; render(); } else bounce(); });
+    refill().then(function () {
+      if (state.queue[ni]) commitAdvance(dir, skipTrack); else bounce(-1);
+    });
     return;
   }
-  card.classList.add("anim");
-  card.style.transform = "translate3d(0," + (dir > 0 ? "-102%" : "102%") + ",0)";
-  setTimeout(function () { state.i = ni; render(); }, 250);
+  commitAdvance(dir, skipTrack);
 }
-function bounce() {
-  card.classList.add("anim");
-  card.style.transform = "translate3d(0,-14px,0)";
-  setTimeout(function () { card.style.transform = "translate3d(0,0,0)"; }, 180);
+
+function bounce(sign) {
+  var tr = el("track");
+  tr.classList.add("anim");
+  tr.style.transform = "translate3d(0," + (sign > 0 ? 16 : -16) + "px,0)";
+  setTimeout(function () { tr.style.transform = "translate3d(0,0,0)"; }, 180);
 }
 
 function flash(kind, text) {
@@ -867,9 +1004,18 @@ function flash(kind, text) {
   setTimeout(function () { f.className = "flash " + kind; }, 1100);
 }
 
+function refreshChrome(it) {
+  counts();
+  var cu = current();
+  if (!cu || cu.key !== it.key) return;
+  paintRail();
+  var ch = q(".chips");
+  if (ch) ch.innerHTML = chipsFor(it);
+}
+
 function collect(which) {
   var it = current();
-  if (!it || !state.me) return;
+  if (!it || !state.me || animating) return;
   var kind = which === "sh" ? "playlist_shared" : "playlist_solo";
   var mi = mineOf(it.key);
   if (which === "sh") mi.shared = true; else mi.solo = true;
@@ -880,10 +1026,13 @@ function collect(which) {
     matched ? "Match — " + otherName() + " wants this too"
             : (which === "sh" ? "Added to shared" : "Added to yours"));
   writeInteraction(it, kind).catch(function (e) { flash("so", "Not saved: " + e.message); });
-  card.classList.add("anim");
-  card.style.transform = "translate3d(" + (which === "sh" ? "112%" : "-112%") + ",0,0) rotate(" +
-    (which === "sh" ? 8 : -8) + "deg)";
-  setTimeout(function () { advance(1); }, 240);
+  var n = curNode();
+  if (n) {
+    n.classList.add("anim");
+    n.style.transform = "translate3d(" + (which === "sh" ? "112%" : "-112%") + ",0,0) rotate(" +
+      (which === "sh" ? 8 : -8) + "deg)";
+  }
+  setTimeout(function () { advance(1, true); }, 230);
 }
 
 function counts() {
@@ -894,63 +1043,92 @@ function counts() {
 
 /* -------------------------------------------------------------- gestures */
 
-function bindGestures(node) {
-  var sx = 0, sy = 0, dx = 0, dy = 0, drag = false, axis = null, raf = 0, want = "";
+function bindGestures(tr) {
+  var sx = 0, sy = 0, dx = 0, dy = 0, drag = false, axis = null, raf = 0;
+  var wantT = null, wantC = null, lastY = 0, lastT = 0, vel = 0;
 
-  function paint() { raf = 0; node.style.transform = want; }
+  function paint() {
+    raf = 0;
+    if (wantT !== null) tr.style.transform = wantT;
+    if (wantC !== null && nodes[1]) nodes[1].style.transform = wantC;
+  }
+  function push() { if (!raf) raf = requestAnimationFrame(paint); }
+
   function overlays(x) {
-    var r = el("ovR"), l = el("ovL");
+    var n = nodes[1]; if (!n) return;
+    var r = n.querySelector(".ovR"), l = n.querySelector(".ovL");
     if (!r || !l) return;
     var o = Math.min(1, Math.abs(x) / 90);
     r.style.opacity = x > 0 ? o : 0;
     l.style.opacity = x < 0 ? o : 0;
   }
-  function push(t) { want = t; if (!raf) raf = requestAnimationFrame(paint); }
 
   function insideScrollable(target) {
     var n = target;
-    while (n && n !== node) {
-      if (n.id === "desc" && state.expanded) return true;
-      if (n.classList && n.classList.contains("seasons")) return true;
+    while (n && n !== tr) {
+      if (n.classList) {
+        if (n.classList.contains("desc") && state.expanded) return true;
+        if (n.classList.contains("seasons")) return true;
+      }
       n = n.parentNode;
     }
     return false;
   }
 
-  node.addEventListener("touchstart", function (e) {
-    if (e.touches.length !== 1) return;
+  tr.addEventListener("touchstart", function (e) {
+    if (e.touches.length !== 1 || animating) { drag = false; return; }
     if (insideScrollable(e.target)) { drag = false; return; }
     sx = e.touches[0].clientX; sy = e.touches[0].clientY;
     dx = dy = 0; drag = true; axis = null;
-    node.classList.remove("anim");
+    wantT = wantC = null; vel = 0;
+    lastY = sy; lastT = Date.now();
+    tr.classList.remove("anim");
+    if (nodes[1]) nodes[1].classList.remove("anim");
   }, { passive: true });
 
-  node.addEventListener("touchmove", function (e) {
+  tr.addEventListener("touchmove", function (e) {
     if (!drag) return;
+    var y = e.touches[0].clientY;
     dx = e.touches[0].clientX - sx;
-    dy = e.touches[0].clientY - sy;
+    dy = y - sy;
+    var now = Date.now();
+    if (now > lastT) { vel = (y - lastY) / (now - lastT); lastY = y; lastT = now; }
     if (!axis) {
       if (Math.abs(dx) > 8 || Math.abs(dy) > 8) axis = Math.abs(dx) > Math.abs(dy) ? "x" : "y";
       else return;
     }
     if (axis === "y" && state.expanded) return;
     e.preventDefault();
-    overlays(axis === "x" ? dx : 0);
-    push(axis === "x"
-      ? "translate3d(" + dx + "px,0,0) rotate(" + (dx / 38) + "deg)"
-      : "translate3d(0," + dy + "px,0)");
+    if (axis === "x") {
+      overlays(dx);
+      wantC = "translate3d(" + dx + "px,0,0) rotate(" + (dx / 38) + "deg)";
+    } else {
+      var open = dy < 0 ? state.queue[state.i + 1] : state.queue[state.i - 1];
+      var shown = open ? dy : dy * 0.28;
+      wantT = "translate3d(0," + shown + "px,0)";
+    }
+    push();
   }, { passive: false });
 
-  node.addEventListener("touchend", function () {
+  tr.addEventListener("touchend", function () {
     if (!drag) return;
     drag = false;
     if (raf) { cancelAnimationFrame(raf); raf = 0; }
-    var TH = 70;
-    if (axis === "x" && Math.abs(dx) > TH) { collect(dx > 0 ? "sh" : "so"); return; }
-    if (axis === "y" && !state.expanded && Math.abs(dy) > TH) { advance(dy < 0 ? 1 : -1); return; }
+    var THx = 70;
+    var THy = Math.max(72, window.innerHeight * 0.15);
+    if (axis === "x" && Math.abs(dx) > THx) { collect(dx > 0 ? "sh" : "so"); return; }
+    if (axis === "y" && !state.expanded &&
+        (Math.abs(dy) > THy || (Math.abs(vel) > 0.55 && Math.abs(dy) > 24))) {
+      advance(dy < 0 ? 1 : -1);
+      return;
+    }
     overlays(0);
-    node.classList.add("anim");
-    node.style.transform = "translate3d(0,0,0)";
+    tr.classList.add("anim");
+    tr.style.transform = "translate3d(0,0,0)";
+    if (nodes[1]) {
+      nodes[1].classList.add("anim");
+      nodes[1].style.transform = "translate3d(0,0,0)";
+    }
   }, { passive: true });
 }
 
@@ -1037,7 +1215,8 @@ el("aWatched").onclick = function () {
     setTimeout(function () { node.classList.remove("blink"); node.classList.add("on"); }, 950);
     writeInteraction(it, "watched").catch(function (e) { flash("so", "Not saved: " + e.message); });
   }
-  var ch = card.querySelector(".chips");
+  counts();
+  var ch = q(".chips");
   if (ch) ch.innerHTML = chipsFor(it);
 };
 
@@ -1089,18 +1268,14 @@ function rateSheet(it, picked) {
       if (exist) exist.value = sel; else state.ratings.push({ key: it.key, value: sel });
       mediaCache[it.key] = { key: it.key, title: it.title, year: it.year, kind: it.kind,
         poster: it.poster, genres: it.genres || [] };
-      paintRail(); closeSheet();
-      var ch = card.querySelector(".chips");
-      if (ch) ch.innerHTML = chipsFor(it);
+      closeSheet(); refreshChrome(it);
       writeInteraction(it, "rating", sel).catch(function (e) { flash("so", "Not saved: " + e.message); });
       if (needWatched) writeInteraction(it, "watched").catch(function () {});
     };
     if (el("rClear")) el("rClear").onclick = function () {
       mineOf(it.key).rating = null;
       state.ratings = state.ratings.filter(function (r) { return r.key !== it.key; });
-      paintRail(); closeSheet();
-      var ch2 = card.querySelector(".chips");
-      if (ch2) ch2.innerHTML = chipsFor(it);
+      closeSheet(); refreshChrome(it);
       dropInteraction(it, "rating").catch(function () {});
     };
   }
@@ -1123,14 +1298,12 @@ el("aNote").onclick = function () {
     var v = el("nt").value.trim();
     if (!v) { el("nt").focus(); return; }
     mineOf(it.key).note = v;
-    paintRail(); closeSheet();
-    var ch = card.querySelector(".chips"); if (ch) ch.innerHTML = chipsFor(it);
+    closeSheet(); refreshChrome(it);
     writeInteraction(it, "note", v).catch(function (e) { flash("so", "Not saved: " + e.message); });
   };
   if (el("nDel")) el("nDel").onclick = function () {
     mineOf(it.key).note = null;
-    paintRail(); closeSheet();
-    var ch = card.querySelector(".chips"); if (ch) ch.innerHTML = chipsFor(it);
+    closeSheet(); refreshChrome(it);
     dropInteraction(it, "note").catch(function () {});
   };
 };
@@ -1207,6 +1380,186 @@ function showList(mode) {
         ? "Everything either of you put forward. A single initial is a request; a 2 is a match."
         : "Yours alone. " + esc(otherName()) + " never sees this list.") + "</p>");
   });
+}
+
+/* ---------------------------------------------------------------- search */
+
+var searchTimer = 0, searchHits = {}, searchTerm = "";
+
+function searchAll(term) {
+  var jobs = [];
+  if (worker) {
+    jobs.push(tmdb("search/multi", { query: term, include_adult: false, language: "en-US", page: 1 })
+      .then(function (d) {
+        return (d.results || [])
+          .filter(function (r) { return (r.media_type === "movie" || r.media_type === "tv") && r.poster_path; })
+          .map(function (r) { return r.media_type === "movie" ? fromTmdbMovie(r) : fromTmdbTv(r); });
+      }).catch(function () { return []; }));
+  } else {
+    jobs.push(getJSON("https://api.tvmaze.com/search/shows?q=" + encodeURIComponent(term))
+      .then(function (a) {
+        return (a || []).filter(function (x) { return x.show && x.show.image; })
+          .map(function (x) { return fromTvmaze(x.show); });
+      }).catch(function () { return []; }));
+  }
+  jobs.push(gJikan()
+    .then(function () {
+      return getJSON("https://api.jikan.moe/v4/anime?q=" + encodeURIComponent(term) + "&limit=8&sfw=true");
+    })
+    .then(function (j) {
+      return (j.data || []).filter(function (a) { return a.images; }).map(fromJikan);
+    }).catch(function () { return []; }));
+
+  return Promise.all(jobs).then(function (r) {
+    var seen = {}, out = [];
+    r[0].concat(r[1]).forEach(function (it) {
+      if (!it.title || seen[it.key]) return;
+      seen[it.key] = 1;
+      out.push(it);
+    });
+    return out;
+  });
+}
+
+function searchRows(items) {
+  searchHits = {};
+  return items.slice(0, 24).map(function (it) {
+    searchHits[it.key] = it;
+    var mi = state.mine[it.key] || blank();
+    var badge = mi.rating != null ? mi.rating.toFixed(1) : (mi.watched ? "seen" : (mi.shared || mi.solo ? "listed" : ""));
+    return '<div class="srow" data-k="' + esc(it.key) + '">' +
+      '<div class="th" style="' + (it.poster ? "background-image:url('" + esc(it.poster) + "')" : "") + '"></div>' +
+      '<div class="lt">' + esc(it.title) +
+        '<div class="ly">' + esc(it.kind) + (it.year ? " · " + it.year : "") + "</div></div>" +
+      (badge ? '<span class="sbadge">' + esc(badge) + "</span>" : "") +
+      '<button class="slog" data-log="' + esc(it.key) + '">Log</button>' +
+    "</div>";
+  }).join("");
+}
+
+function bindSearchRows() {
+  var box = el("sres");
+  if (!box) return;
+  Array.prototype.forEach.call(box.querySelectorAll(".slog"), function (b) {
+    b.onclick = function (ev) {
+      ev.stopPropagation();
+      var it = searchHits[b.dataset.log];
+      if (it) logSheet(it);
+    };
+  });
+  Array.prototype.forEach.call(box.querySelectorAll(".srow"), function (row) {
+    row.onclick = function () {
+      var it = searchHits[row.dataset.k];
+      if (it) jumpTo(it);
+    };
+  });
+}
+
+function runSearch(term) {
+  searchTerm = term;
+  searchAll(term).then(function (items) {
+    if (searchTerm !== term) return;
+    var box = el("sres");
+    if (!box) return;
+    box.innerHTML = items.length ? searchRows(items)
+      : '<p class="msg">Nothing found for that.</p>';
+    bindSearchRows();
+  }).catch(function () {
+    var box = el("sres");
+    if (box) box.innerHTML = '<p class="msg bad">Search failed. Check the worker in Settings.</p>';
+  });
+}
+
+function openSearch() {
+  openSheet("Log a title",
+    '<input class="f" id="sq" type="search" placeholder="Film, show or anime" ' +
+      'autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">' +
+    '<div id="sres"></div>' +
+    '<p class="credit">Tap a row to open it in the feed. Tap <b>Log</b> to mark it ' +
+    "without leaving this list.</p>");
+  var inp = el("sq");
+  searchTerm = "";
+  setTimeout(function () { try { inp.focus(); } catch (e) {} }, 180);
+  inp.oninput = function () {
+    var term = inp.value.trim();
+    clearTimeout(searchTimer);
+    if (term.length < 2) { searchTerm = ""; el("sres").innerHTML = ""; return; }
+    el("sres").innerHTML = '<p class="msg">Searching…</p>';
+    searchTimer = setTimeout(function () { runSearch(term); }, 280);
+  };
+  inp.onkeydown = function (ev) {
+    if (ev.key !== "Enter") return;
+    ev.preventDefault();
+    clearTimeout(searchTimer);
+    var term = inp.value.trim();
+    if (term.length >= 2) { el("sres").innerHTML = '<p class="msg">Searching…</p>'; runSearch(term); }
+  };
+}
+
+/* Drop a title into the feed at the next position and go straight to it, so a
+   searched title is read exactly as if it had come up on its own. */
+function jumpTo(it) {
+  closeSheet();
+  el("prof").classList.remove("on");
+  setNav("nvFeed");
+  var at = -1;
+  for (var n = 0; n < state.queue.length; n++) {
+    if (state.queue[n].key === it.key) { at = n; break; }
+  }
+  if (at < 0) {
+    at = Math.min(state.i + 1, state.queue.length);
+    state.queue.splice(at, 0, it);
+  }
+  state.i = at;
+  navGen++;
+  animating = false;
+  nodes.forEach(function (nd) { nd._key = null; });
+  renderWindow();
+  cacheFeed();
+}
+
+function logSheet(it) {
+  if (!state.me) return;
+  var mi = state.mine[it.key] || blank();
+  var th = state.theirs[it.key] || blank();
+  function b(id, label, on, pri) {
+    return '<button class="logb' + (on ? " on" : "") + (pri ? " pri" : "") + '" id="' + id + '">' +
+      esc(label) + "</button>";
+  }
+  openSheet(it.title,
+    '<p class="msg">' + esc(it.kind) + (it.year ? " · " + it.year : "") + "</p>" +
+    '<div class="logrow">' +
+      b("lgW", mi.watched ? "Watched ✓" : "Mark watched", mi.watched) +
+      b("lgR", mi.rating != null ? "Rated " + mi.rating.toFixed(1) : "Rate", mi.rating != null) +
+    "</div>" +
+    '<div class="logrow">' +
+      b("lgS", mi.shared ? "On shared ✓" : "Add to shared", mi.shared) +
+      b("lgO", mi.solo ? "On yours ✓" : "Keep to myself", mi.solo) +
+    "</div>" +
+    '<div class="logrow">' + b("lgF", "Open in the feed", false, true) + "</div>" +
+    (th.shared && !mi.shared ? '<p class="msg good">' + esc(otherName()) + " already wants this.</p>" : "") +
+    '<p class="credit">Logged from search, so the feed stays where it was. ' +
+    "A rating always implies watched.</p>");
+
+  function toggle(flagKey, kind) {
+    var rec = mineOf(it.key);
+    if (rec[flagKey]) {
+      rec[flagKey] = false;
+      dropInteraction(it, kind).catch(function () {});
+    } else {
+      rec[flagKey] = true;
+      rememberMedia(it).catch(function () {});
+      writeInteraction(it, kind).catch(function (e) { flash("so", "Not saved: " + e.message); });
+    }
+    refreshChrome(it);
+    logSheet(it);
+  }
+
+  el("lgW").onclick = function () { toggle("watched", "watched"); };
+  el("lgS").onclick = function () { toggle("shared", "playlist_shared"); };
+  el("lgO").onclick = function () { toggle("solo", "playlist_solo"); };
+  el("lgR").onclick = function () { rateSheet(it, undefined); };
+  el("lgF").onclick = function () { jumpTo(it); };
 }
 
 /* --------------------------------------------------------------- profile */
@@ -1433,13 +1786,14 @@ Array.prototype.forEach.call(el("pfTabs").querySelectorAll(".tab"), function (n)
   n.onclick = function () { pfTab = n.dataset.t; paintProfile(); };
 });
 function setNav(which) {
-  ["nvLists", "nvFeed", "nvMe"].forEach(function (id) {
+  ["nvLists", "nvFeed", "nvLog", "nvMe"].forEach(function (id) {
     el(id).className = "nv" + (id === which ? " on" : "");
   });
 }
 el("pfX").onclick = function () { el("prof").classList.remove("on"); setNav("nvFeed"); counts(); };
 el("nvMe").onclick = function () { setNav("nvMe"); openProfile(); };
 el("nvLists").onclick = function () { setNav("nvLists"); showList(listMode); };
+el("nvLog").onclick = function () { setNav("nvLog"); openSearch(); };
 el("nvFeed").onclick = function () {
   setNav("nvFeed");
   closeSheet();
@@ -1464,7 +1818,7 @@ function showGate() {
       try { localStorage.setItem(K_ME, JSON.stringify(state.me)); } catch (e) {}
       el("gate").classList.remove("on");
       el("load").classList.remove("off");
-      start();
+      afterIdentity();
     };
   });
 }
@@ -1473,17 +1827,17 @@ function showGate() {
 
 function importLegacy() {
   var raw;
-  try { raw = localStorage.getItem(K_LEGACY); } catch (e) { return Promise.resolve(); }
-  if (!raw) return Promise.resolve();
+  try { raw = localStorage.getItem(K_LEGACY); } catch (e) { return Promise.resolve(false); }
+  if (!raw) return Promise.resolve(false);
   var old;
-  try { old = JSON.parse(raw); } catch (e) { return Promise.resolve(); }
+  try { old = JSON.parse(raw); } catch (e) { return Promise.resolve(false); }
   var jobs = [];
   ["shared", "solo"].forEach(function (b) {
     Object.keys(old[b] || {}).forEach(function (k) {
       jobs.push({ key: k, kind: b === "shared" ? "playlist_shared" : "playlist_solo", v: old[b][k] });
     });
   });
-  if (!jobs.length) { try { localStorage.removeItem(K_LEGACY); } catch (e) {} return Promise.resolve(); }
+  if (!jobs.length) { try { localStorage.removeItem(K_LEGACY); } catch (e) {} return Promise.resolve(false); }
   var mediaRows = {}, inter = [];
   jobs.forEach(function (j) {
     mediaRows[j.key] = { key: j.key, source: j.key.split(":")[0], kind: j.v.kind || "movie",
@@ -1492,8 +1846,8 @@ function importLegacy() {
   });
   return sbUpsert("media", Object.keys(mediaRows).map(function (k) { return mediaRows[k]; }), "key")
     .then(function () { return sbUpsert("interaction", inter, "user_id,media_key,kind"); })
-    .then(function () { try { localStorage.removeItem(K_LEGACY); } catch (e) {} })
-    .catch(function () {});
+    .then(function () { try { localStorage.removeItem(K_LEGACY); } catch (e) {} return true; })
+    .catch(function () { return false; });
 }
 
 /* ------------------------------------------------------------------ boot */
@@ -1545,37 +1899,113 @@ function reconcileWatched() {
   return sbUpsert("interaction", rows, "user_id,media_key,kind").catch(function () {});
 }
 
-function start() {
-  el("navAv").textContent = state.me ? state.me.initial : "?";
-  el("navAv").style.background = state.me ? state.me.bar_colour : "#333";
-  setTimeout(function () { failScreen("Timed out waiting for the sources."); }, 16000);
-  loadMine()
-    .then(importLegacy)
-    .then(loadMine)
-    .then(loadTiers)
-    .then(reconcileWatched)
-    .then(function () { counts(); return refill(); })
-    .then(function () {
-      if (!state.queue.length) { failScreen("No source returned anything."); return; }
-      booted = true;
-      render();
-      maybeCoach();
-    })
-    .catch(function (e) { failScreen("The feed failed to start: " + (e && e.message ? e.message : "unknown")); });
+/* ------------------------------------------------- cached first paint */
+
+var K_FEED = "reel.feed";
+
+function cacheFeed() {
+  try {
+    var from = Math.max(0, state.i - 2);
+    var slim = state.queue.slice(from, from + 24).map(function (it) {
+      return { key: it.key, source: it.source, sourceKind: it.sourceKind, sourceId: it.sourceId,
+        kind: it.kind, title: it.title, tagline: it.tagline, year: it.year, poster: it.poster,
+        genres: it.genres || [], _gids: it._gids || null, runtime: it.runtime,
+        descShort: it.descShort, descLong: it.descLong, thin: it.thin, imdb: it.imdb,
+        ratings: it.ratings || {}, extra: it.extra };
+    });
+    localStorage.setItem(K_FEED, JSON.stringify({ i: state.i - from, q: slim }));
+  } catch (e) {}
 }
 
-sbGet("app_user?select=id,handle,display_name,initial,bar_colour&order=created_at").then(function (rows) {
-  state.users = rows || [];
-  if (!state.users.length) { failScreen("No people in the database. Run the seed in schema.sql."); return; }
+function readFeedCache() {
+  try {
+    var r = localStorage.getItem(K_FEED);
+    if (!r) return null;
+    var o = JSON.parse(r);
+    if (!o || !o.q || !o.q.length) return null;
+    return o;
+  } catch (e) { return null; }
+}
+
+/* ------------------------------------------------------------------ boot */
+
+var pFeed = null;
+
+function startData() {
+  if (!state.me) return Promise.resolve();
+  return loadMine()
+    .then(importLegacy)
+    .then(function (did) { return did ? loadMine() : null; })
+    .then(loadTiers)
+    .then(reconcileWatched)
+    .then(function () {
+      counts();
+      var cu = current();
+      if (cu) refreshChrome(cu);
+    })
+    .catch(function () {});
+}
+
+function liftOff() {
+  if (booted || !state.queue.length) return;
+  booted = true;
+  renderWindow();
+  maybeCoach();
+  cacheFeed();
+}
+
+function afterIdentity() {
+  el("navAv").textContent = state.me.initial;
+  el("navAv").style.background = state.me.bar_colour;
+  startData();
+  if (state.queue.length) { liftOff(); return; }
+  if (pFeed) pFeed.then(function () {
+    if (state.queue.length) liftOff();
+    else if (!booted) failScreen("No source returned anything.");
+  });
+}
+
+function boot() {
+  el("navAv").textContent = state.me ? state.me.initial : "?";
+  el("navAv").style.background = state.me ? state.me.bar_colour : "#333";
+
+  // Paint the last session's feed on the first frame. No network is touched
+  // before this, so the loader is gone before the first request lands.
   if (state.me) {
-    var still = state.users.filter(function (u) { return u.id === state.me.id; })[0];
-    if (still) { state.me = still; start(); return; }
+    var c = readFeedCache();
+    if (c) {
+      state.queue = c.q;
+      state.i = Math.max(0, Math.min(c.i || 0, c.q.length - 1));
+      booted = true;
+      renderWindow();
+    }
   }
-  showGate();
-}).catch(function (e) {
-  state.diag.db = e.message;
-  failScreen("Could not reach Supabase.");
-});
+  if (!booted) setTimeout(function () { failScreen("Timed out waiting for the sources."); }, 16000);
+
+  // Identity and the feed are independent, so they run at the same time.
+  pFeed = refill();
+  pFeed.then(function () { backfillGenres(); cacheFeed(); });
+
+  sbGet("app_user?select=id,handle,display_name,initial,bar_colour&order=created_at")
+    .then(function (rows) {
+      state.users = rows || [];
+      if (!state.users.length) {
+        if (!booted) failScreen("No people in the database. Run the seed in schema.sql.");
+        return;
+      }
+      if (state.me) {
+        var still = state.users.filter(function (u) { return u.id === state.me.id; })[0];
+        if (still) { state.me = still; afterIdentity(); return; }
+      }
+      showGate();
+    })
+    .catch(function (e) {
+      state.diag.db = e.message;
+      if (!booted) failScreen("Could not reach Supabase.");
+    });
+}
+
+boot();
 </script>
 </body>
 </html>
