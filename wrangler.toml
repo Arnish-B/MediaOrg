@@ -1,4 +1,7 @@
-name = "reel-proxy"
+# Must match the worker that already exists in the dashboard, or `wrangler
+# deploy` quietly publishes to a NEW worker at <name>.<subdomain>.workers.dev
+# and leaves the live one untouched, secrets and all.
+name = "mediaorg"
 main = "worker.js"
 compatibility_date = "2026-11-01"
 
