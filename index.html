@@ -622,7 +622,18 @@ function tmdb(path, params) {
 
 // Per-source freshness, matching the precedence table in the spec. A value
 // past its TTL still displays; it is just queued for a refetch on next open.
-var EXT_TTL = { imdb: 7 * 864e5, metacritic: 30 * 864e5 };
+var EXT_TTL = { imdb: 7 * 864e5, metacritic: 30 * 864e5, rt: 90 * 864e5 };
+
+// OMDb returns every score it has in one Ratings array. The dedicated
+// imdbRating and Metascore fields are read first because imdbRating carries a
+// vote count the array does not; the array then fills whatever is left, which
+// is the only place a Rotten Tomatoes number appears (the legacy tomatoMeter
+// field has answered N/A for years).
+var OMDB_SOURCES = {
+  "Internet Movie Database": { key: "imdb", scale: "/10" },
+  "Rotten Tomatoes": { key: "rt", scale: "%" },
+  "Metacritic": { key: "metacritic", scale: "/100" }
+};
 
 function omdbFetch(params) {
   if (!worker) return Promise.reject(new Error("no worker"));
@@ -670,7 +681,12 @@ function extRatings(it) {
     .then(function (rows) {
       var by = {};
       (rows || []).forEach(function (r) { r.value = Number(r.value); by[r.source] = r; });
-      if (fresh(by.imdb) && fresh(by.metacritic)) return by;
+      // Everything rides on the imdb TTL: one OMDb call carries all three
+      // scores, so refetching when imdb is stale refreshes the lot. Hanging
+      // the decision on a score the title may simply not have -- most titles
+      // have no Metacritic, many no Rotten Tomatoes -- would refetch on every
+      // single open, forever, for exactly those titles.
+      if (fresh(by.imdb)) return by;
 
       return detailFor(it).then(function (d) {
         var id = it.imdb || (d && d.imdb) || null;
@@ -689,7 +705,22 @@ function extRatings(it) {
           }
           take("imdb", o.imdbRating, "/10", numOr(o.imdbVotes));
           take("metacritic", o.Metascore, "/100", null);
-          if (writes.length) sbUpsert("media_rating", writes, "media_key,source").catch(function () {});
+          (o.Ratings || []).forEach(function (r) {
+            var m = OMDB_SOURCES[r && r.Source];
+            if (!m || by[m.key]) return;          // dedicated fields win where they exist
+            take(m.key, r.Value, m.scale, null);  // "85%" and "74/100" both parse to a number
+          });
+          if (writes.length) {
+            sbUpsert("media_rating", writes, "media_key,source").catch(function (e) {
+              // A swallowed write failure looks identical on screen to a
+              // successful one, because the timestamp is built client-side.
+              by._writeError = (e && e.message) || "unknown error";
+              var cu = current();
+              if (cu && cu.key === it.key && el("sheet").classList.contains("on")) {
+                paintRatings(cu, by, false);
+              }
+            });
+          }
           return by;
         }).catch(function (e) {
           if (e && /\b503\b/.test(e.message || "")) state.omdbOff = true;
@@ -1334,10 +1365,20 @@ function paintRatings(it, ext, loading) {
           : "no metascore for this title")), "/100");
 
   row("Letterboxd", null, loading ? "" : "API access requested", "/5");
-  row("Rotten Tomatoes", null, loading ? "" : "no public API; per-title fetch", "%");
+
+  var rt = ext.rt;
+  row("Rotten Tomatoes", rt ? rt.value : null,
+    rt ? sourced(rt, "tomatometer")
+       : (loading ? "" : (state.omdbOff ? "add an OMDB_KEY secret to the worker"
+          : "OMDb has no tomatometer for this title")), "%");
+
   row("You", mi.rating, mi.rating != null ? "your rating" : "not rated yet", "/5");
 
   openSheet("Ratings", rows.join("") +
+    (ext._writeError
+      ? '<p class="credit bad">Shown but not saved — writing to media_rating failed: ' +
+        esc(ext._writeError) + ". These scores will be refetched every time until that is fixed.</p>"
+      : "") +
     '<p class="credit">Each score carries where it came from and when, so a stale ' +
     "number is visible as stale rather than passing for current. Absent is a real " +
     "state, not an error.</p>");
