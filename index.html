@@ -443,7 +443,7 @@ var IMG_S = "https://image.tmdb.org/t/p/w185";
 var state = {
   queue: [], i: 0, detail: {}, busy: false, genres: {}, diag: {},
   me: null, users: [], mine: {}, theirs: {}, ratings: [], tiers: [],
-  expanded: false
+  expanded: false, ext: {}, omdbOff: false
 };
 var worker = DEFAULT_WORKER;
 
@@ -616,6 +616,88 @@ function tmdb(path, params) {
   if (!worker) return Promise.reject(new Error("no worker"));
   var q = new URLSearchParams(params || {}).toString();
   return gTmdb().then(function () { return getJSON(worker + "/tmdb/" + path + (q ? "?" + q : "")); });
+}
+
+/* --------------------------------------------- external ratings (OMDb) */
+
+// Per-source freshness, matching the precedence table in the spec. A value
+// past its TTL still displays; it is just queued for a refetch on next open.
+var EXT_TTL = { imdb: 7 * 864e5, metacritic: 30 * 864e5 };
+
+function omdbFetch(params) {
+  if (!worker) return Promise.reject(new Error("no worker"));
+  var q = new URLSearchParams(params).toString();
+  return gTmdb().then(function () { return getJSON(worker + "/omdb?" + q, 9000); });
+}
+
+function numOr(v) {
+  if (v == null) return null;
+  var t = String(v).replace(/,/g, "").trim();
+  if (!t || t === "N/A") return null;
+  var n = parseFloat(t);
+  return isNaN(n) ? null : n;
+}
+
+function fresh(row) {
+  if (!row) return false;
+  if (row.is_manual) return true;             // a hand-typed score never expires
+  var ttl = EXT_TTL[row.source];
+  if (!ttl) return true;
+  var t = Date.parse(row.fetched_at);
+  return isNaN(t) ? false : (Date.now() - t) < ttl;
+}
+
+function agoText(iso) {
+  var t = Date.parse(iso);
+  if (isNaN(t)) return "";
+  var d = Math.floor((Date.now() - t) / 864e5);
+  if (d <= 0) return "today";
+  if (d === 1) return "yesterday";
+  if (d < 31) return d + " days ago";
+  return Math.floor(d / 30) + " months ago";
+}
+
+/* Reads what the database already has, refetches only what is missing or
+   stale, and writes back with the source and the time attached. Never
+   overwrites a row marked is_manual. */
+function extRatings(it) {
+  var mem = state.ext[it.key];
+  if (mem && mem._at && Date.now() - mem._at < 6e5) return Promise.resolve(mem);
+
+  return sbGet("media_rating?media_key=eq." + encodeURIComponent(it.key) +
+      "&select=source,value,scale,votes,fetched_at,is_manual")
+    .catch(function () { return []; })
+    .then(function (rows) {
+      var by = {};
+      (rows || []).forEach(function (r) { r.value = Number(r.value); by[r.source] = r; });
+      if (fresh(by.imdb) && fresh(by.metacritic)) return by;
+
+      return detailFor(it).then(function (d) {
+        var id = it.imdb || (d && d.imdb) || null;
+        if (!id) return by;
+        return omdbFetch({ i: id }).then(function (o) {
+          if (!o || o.Response === "False") return by;
+          var now = new Date().toISOString(), writes = [];
+          function take(src, raw, scale, votes) {
+            var v = numOr(raw);
+            if (v == null) return;
+            if (by[src] && by[src].is_manual) return;
+            by[src] = { source: src, value: v, scale: scale, votes: votes,
+              fetched_at: now, is_manual: false };
+            writes.push({ media_key: it.key, source: src, value: v, scale: scale,
+              votes: votes, fetched_at: now });
+          }
+          take("imdb", o.imdbRating, "/10", numOr(o.imdbVotes));
+          take("metacritic", o.Metascore, "/100", null);
+          if (writes.length) sbUpsert("media_rating", writes, "media_key,source").catch(function () {});
+          return by;
+        }).catch(function (e) {
+          if (e && /\b503\b/.test(e.message || "")) state.omdbOff = true;
+          return by;
+        });
+      });
+    })
+    .then(function (by) { by._at = Date.now(); state.ext[it.key] = by; return by; });
 }
 
 /* ------------------------------------------------------------ adapters */
@@ -1218,25 +1300,58 @@ el("cLeft").onclick = function () {
   });
 };
 
-el("cRight").onclick = function () {
-  var it = current(); if (!it) return;
+function paintRatings(it, ext, loading) {
   var rows = [], mi = state.mine[it.key] || blank();
+  ext = ext || {};
   function row(src, val, sub, scale) {
     rows.push('<div class="rrow"><div class="src">' + src +
       (sub ? '<div class="sub">' + sub + "</div>" : "") + "</div>" +
-      (val == null ? '<div class="abs">not available</div>'
+      (val == null ? '<div class="abs">' + (loading ? "checking…" : "not available") + "</div>"
         : '<div class="val">' + val + '<span style="font-size:12px;color:#6a6963">' + scale + "</span></div>") + "</div>");
   }
+  function sourced(r, extra) {
+    var bits = [];
+    if (extra) bits.push(extra);
+    bits.push("fetched " + agoText(r.fetched_at));
+    if (r.is_manual) bits.push("entered by hand");
+    return bits.join(" · ");
+  }
+
   if (it.source === "tmdb") row("TMDB", it.ratings.tmdb, it.ratings.tmdbVotes ? it.ratings.tmdbVotes.toLocaleString() + " votes" : "", "/10");
   if (it.source === "tvmaze") row("TVMaze", it.ratings.tvmaze, "community average", "/10");
   if (it.source === "mal") row("MyAnimeList", it.ratings.mal, it.ratings.malVotes ? it.ratings.malVotes.toLocaleString() + " votes" : "", "/10");
-  row("IMDb", null, it.imdb ? it.imdb + " — needs the nightly dump" : "no id from this source", "/10");
-  row("Metacritic", null, "needs an OMDb key", "/100");
-  row("Letterboxd", null, "API access requested", "/5");
-  row("Rotten Tomatoes", null, "agent fetch, once you interact", "%");
+
+  var im = ext.imdb;
+  row("IMDb", im ? im.value : null,
+    im ? sourced(im, im.votes ? im.votes.toLocaleString() + " votes" : "")
+       : (loading ? "" : (state.omdbOff ? "add an OMDB_KEY secret to the worker"
+          : (it.imdb ? "OMDb returned no score" : "no IMDb id from this source"))), "/10");
+
+  var mc = ext.metacritic;
+  row("Metacritic", mc ? mc.value : null,
+    mc ? sourced(mc, "metascore")
+       : (loading ? "" : (state.omdbOff ? "add an OMDB_KEY secret to the worker"
+          : "no metascore for this title")), "/100");
+
+  row("Letterboxd", null, loading ? "" : "API access requested", "/5");
+  row("Rotten Tomatoes", null, loading ? "" : "no public API; per-title fetch", "%");
   row("You", mi.rating, mi.rating != null ? "your rating" : "not rated yet", "/5");
+
   openSheet("Ratings", rows.join("") +
-    '<p class="credit">Absent is a real state, not an error. Each row fills in as its source comes online.</p>');
+    '<p class="credit">Each score carries where it came from and when, so a stale ' +
+    "number is visible as stale rather than passing for current. Absent is a real " +
+    "state, not an error.</p>");
+}
+
+el("cRight").onclick = function () {
+  var it = current(); if (!it) return;
+  var known = state.ext[it.key];
+  paintRatings(it, known, !known);
+  extRatings(it).then(function (ext) {
+    if (current() === it && el("sheet").classList.contains("on")) paintRatings(it, ext, false);
+  }).catch(function () {
+    if (current() === it && el("sheet").classList.contains("on")) paintRatings(it, known, false);
+  });
 };
 
 /* ------------------------------------------------------------ the actions */
