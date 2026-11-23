@@ -1591,7 +1591,33 @@ el("cLeft").onclick = function () {
    different lengths under a fixed marker says "these disagree, and by this
    much" in a way five static numbers in a column never did. */
 var ratingsRAF = 0;
-var OUT_ARC = 216.77, IN_ARC = 164.93;   // 270 degrees of r=46 and r=35
+
+/* Gauge geometry, worked out rather than guessed, because two earlier guesses
+   were both wrong in ways that were invisible until someone looked hard.
+
+   THE GAP IS NOT THE REMAINDER. A dash pattern tiles the path: if the on-length
+   plus the off-length equals the circumference exactly, the pattern repeats
+   seamlessly and the drawn LENGTH is fixed forever -- dashoffset then only
+   rotates where that fixed arc sits. That is what the first version did, so
+   both rings drew a constant 75% sweep at every rating and the dial was pure
+   decoration. Making the gap a whole circumference means the pattern cannot
+   complete a second cycle inside the path, the wrapped remainder falls off the
+   end, and dashoffset finally controls length the way the idiom promises.
+
+   THE INNER RING IS NOT A SCALED COPY. A round linecap overhangs each end of
+   the stroke by half its width, which is an ANGLE of (w/2)/r -- 4.36 degrees on
+   the outer ring at r=46 w=7, but only 2.46 on the inner at r=35 w=3. Equal
+   sweeps therefore do not line up. Aligning both ends needs the inner sweep
+   widened by twice the difference and the whole ring rolled back by one
+   difference:
+
+     sweep_in = 270 + 2(c_out - c_in) = 273.808 degrees
+     roll_in  = -(c_out - c_in)       = -1.904 degrees
+
+   which lands both caps of both rings on the same two radial lines. */
+var OUT_R = 46, OUT_C = 289.03, OUT_ARC = 216.77;   // 270 deg of r=46
+var IN_R = 35, IN_C = 219.91, IN_ARC = 167.26;      // 273.808 deg of r=35
+var IN_ROLL = -1.904;
 
 function gapChip(con, mine) {
   if (mine == null) {
@@ -1613,15 +1639,24 @@ function paintRatings(it, ext, loading) {
   var con = consensus(vals);
   var mf = mine != null ? mine / 5 : 0;
 
+  // The inner pair is rolled as a unit, in user space, so the roll survives the
+  // 135-degree CSS rotation on the <svg> itself.
+  var roll = ' transform="rotate(' + IN_ROLL + ' 52 52)"';
+  var outDash = ' stroke-dasharray="' + OUT_ARC + " " + OUT_C + '"';
+  var inDash = ' stroke-dasharray="' + IN_ARC + " " + IN_C + '"';
+
   var dial = '<div class="rdial"><div class="dwrap">' +
     '<svg viewBox="0 0 104 104" aria-hidden="true">' +
-      '<circle class="dt" cx="52" cy="52" r="46" stroke-dasharray="216.77 72.26"></circle>' +
-      (mine != null ? '<circle class="dmt" cx="52" cy="52" r="35" ' +
-        'stroke-dasharray="164.93 54.98"></circle>' : "") +
-      '<circle class="da" id="dArc" cx="52" cy="52" r="46" ' +
-        'stroke-dasharray="216.77 72.26" stroke-dashoffset="' + OUT_ARC + '"></circle>' +
-      (mine != null ? '<circle class="dm" id="dMine" cx="52" cy="52" r="35" ' +
-        'stroke-dasharray="164.93 54.98" stroke-dashoffset="' + IN_ARC + '"></circle>' : "") +
+      '<circle class="dt" cx="52" cy="52" r="46"' + outDash + "></circle>" +
+      (mine != null ? '<circle class="dmt" cx="52" cy="52" r="35"' + inDash + roll +
+        "></circle>" : "") +
+      // No consensus means no arc at all: a zero-length stroke with a round cap
+      // still paints a dot, and a dot on a screen that says "no scores" is a
+      // score the title does not have.
+      (con ? '<circle class="da" id="dArc" cx="52" cy="52" r="46"' + outDash +
+        ' stroke-dashoffset="' + OUT_ARC + '"></circle>' : "") +
+      (mine != null ? '<circle class="dm" id="dMine" cx="52" cy="52" r="35"' + inDash +
+        ' stroke-dashoffset="' + IN_ARC + '"' + roll + "></circle>" : "") +
     "</svg>" +
     '<div class="dval"><b id="dNum">' + (con ? "0.0" : "—") + "</b><i>/5</i></div>" +
     "</div><div class=\"dmeta\">" +
