@@ -209,12 +209,103 @@ h1{font-size:24px;line-height:1.18;font-weight:600;letter-spacing:-.022em}
 .crow .nm{font-size:14.5px;font-weight:500}
 .crow .ch{font-size:12.5px;color:#908e86;margin-top:1px}
 .crow .rk{font-size:11px;color:#55544e;margin-left:auto;font-variant-numeric:tabular-nums}
-.rrow{display:flex;align-items:baseline;gap:10px;padding:12px 0;
-  border-bottom:.5px solid rgba(255,255,255,.06)}
-.rrow .src{font-size:13.5px;color:#cfcdc5;flex:1}
-.rrow .val{font-size:19px;font-weight:600;font-variant-numeric:tabular-nums}
-.rrow .abs{font-size:12.5px;color:#55544e;font-style:italic}
-.rrow .sub{font-size:11px;color:#6a6963;margin-top:2px}
+/* Ratings, normalised. An 87%, a 7.4/10 and a 4.1/5 cannot be compared by eye
+   in their native units, so every source is drawn on one 0-5 track with the
+   native number kept beside it as the receipt. The amber line down the stack is
+   your own rating: the distance between it and each bar is the whole point of
+   the screen, and it is a glance rather than arithmetic. */
+.rdial{display:flex;align-items:center;gap:18px;padding:4px 0 20px;
+  border-bottom:.5px solid rgba(255,255,255,.07)}
+.dwrap{position:relative;width:104px;height:104px;flex:0 0 104px}
+.dwrap svg{width:104px;height:104px;transform:rotate(135deg)}
+.dwrap circle{fill:none}
+.dwrap .dt{stroke:rgba(255,255,255,.07);stroke-width:7}
+.dwrap .dmt{stroke:rgba(255,255,255,.05);stroke-width:3}
+.dwrap .da{stroke:#5dcaa5;stroke-width:7;stroke-linecap:round;
+  transition:stroke-dashoffset 1.1s cubic-bezier(.16,.84,.26,1)}
+.dwrap .dm{stroke:#efa227;stroke-width:3;stroke-linecap:round;
+  transition:stroke-dashoffset 1.1s cubic-bezier(.16,.84,.26,1) .14s}
+.dval{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  gap:1px;letter-spacing:-.03em}
+.dval b{font-size:30px;font-weight:600;font-variant-numeric:tabular-nums}
+.dval i{font-size:12px;color:#6a6963;font-style:normal;align-self:flex-end;padding-bottom:7px}
+.dmeta{flex:1;min-width:0}
+.dlead{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:#6a6963;
+  font-weight:600}
+.dsub{font-size:12.5px;color:#a8a69d;margin-top:5px;line-height:1.45}
+.dgap{display:inline-block;margin-top:9px;font-size:12px;font-weight:600;
+  padding:4px 9px;border-radius:7px;background:rgba(239,162,39,.13);color:#efa227;
+  opacity:0;transform:translateY(5px);
+  transition:opacity .4s ease .7s,transform .4s cubic-bezier(.2,.8,.2,1) .7s}
+.dgap.in{opacity:1;transform:none}
+.dgap.cold{background:rgba(255,255,255,.055);color:#85837b;font-weight:500}
+
+.rstack{padding:14px 0 2px}
+.rbar{padding:9px 0}
+.rbhd{display:flex;align-items:baseline;gap:8px;margin-bottom:6px}
+.rbhd .nm{font-size:13px;color:#cfcdc5;font-weight:500;flex:0 0 auto}
+.rbhd .ag{font-size:10px;color:#55544e;min-width:0;overflow:hidden;
+  white-space:nowrap;text-overflow:ellipsis}
+.rbhd .nat{margin-left:auto;font-size:11.5px;color:#7e7c75;flex:0 0 auto;
+  font-variant-numeric:tabular-nums}
+.rbhd .n5{font-size:14.5px;font-weight:600;flex:0 0 auto;letter-spacing:-.01em;
+  font-variant-numeric:tabular-nums}
+/* Ticks are painted into the track rather than drawn as elements, so every row
+   carries the same 1-2-3-4-5 gridlines for free. */
+.rtrack{position:relative;height:9px;border-radius:5px;
+  background:repeating-linear-gradient(90deg,rgba(255,255,255,.085) 0 1px,
+    transparent 1px 20%),rgba(255,255,255,.045)}
+.rtrack .fl{position:absolute;left:0;top:0;bottom:0;width:0;border-radius:5px;
+  background:linear-gradient(90deg,#2d8a69,#5dcaa5);
+  transition:width .85s cubic-bezier(.16,.84,.26,1)}
+/* The marker sits at the same geometry in every row, so the eye joins them into
+   one line down the stack without anything being drawn between the rows. */
+.yl{position:absolute;top:-3px;bottom:-3px;width:2px;margin-left:-1px;border-radius:1px;
+  background:#efa227;opacity:0;transition:opacity .35s ease .55s}
+.rtrack.marked .yl{opacity:.92}
+.raxis{display:flex;justify-content:space-between;margin-top:10px;
+  font-size:9.5px;color:#43423e;font-variant-numeric:tabular-nums}
+.rmine{display:flex;align-items:center;gap:8px;margin-top:15px;padding-top:13px;
+  border-top:.5px solid rgba(255,255,255,.07);font-size:12px;color:#908e86;
+  line-height:1.45}
+.rmine .dot{width:8px;height:8px;border-radius:50%;background:#efa227;flex:0 0 8px}
+.rnone{font-size:11.5px;color:#55544e;line-height:1.65;margin-top:14px}
+.rnone b{color:#7e7c75;font-weight:500}
+
+/* Pass-back. A one-sided proposal can be declined; a match cannot, so the
+   control only appears on rows the other person put forward alone. */
+.lrow .pbx{width:30px;height:30px;border-radius:50%;flex:0 0 30px;
+  background:rgba(255,255,255,.055);border:.5px solid rgba(255,255,255,.1);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+  transition:background .15s,border-color .15s}
+.lrow .pbx:active{background:rgba(240,149,149,.17);border-color:rgba(240,149,149,.42)}
+.lrow .pbx svg{width:15px;height:15px;stroke:#908e86;fill:none;stroke-width:1.75;
+  stroke-linecap:round;stroke-linejoin:round}
+.lrow.pz{gap:9px;animation:pzin .22s cubic-bezier(.2,.8,.2,1)}
+@keyframes pzin{from{background:rgba(240,149,149,.09)}to{background:transparent}}
+.lrow.pz .lt{font-size:12.5px;color:#cfcdc5;line-height:1.35}
+.lrow.pz .lt span{display:block;font-size:11px;color:#6a6963;margin-top:2px}
+.pbtn{font-size:12.5px;font-weight:600;padding:7px 11px;border-radius:8px;cursor:pointer;
+  border:.5px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);
+  color:#cfcdc5;flex:0 0 auto}
+.pbtn.go{background:rgba(240,149,149,.15);border-color:rgba(240,149,149,.4);color:#f3a9a9}
+.pnote{display:flex;align-items:center;gap:10px;font-size:12px;color:#9fe1cb;
+  background:rgba(29,158,117,.11);border:.5px solid rgba(93,202,165,.24);
+  border-radius:10px;padding:9px 11px;margin:2px 0 8px;
+  animation:pnin .28s cubic-bezier(.2,.8,.2,1)}
+@keyframes pnin{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.pnote b{margin-left:auto;color:#5dcaa5;cursor:pointer;font-weight:600;flex:0 0 auto}
+.ptag{font-size:9.5px;color:#85837b;background:rgba(255,255,255,.06);
+  padding:2px 6px;border-radius:5px;flex:0 0 auto;letter-spacing:.02em}
+
+/* Honour the system setting: everything above still lands, it just lands at
+   once instead of sweeping in. */
+@media (prefers-reduced-motion:reduce){
+  .rtrack .fl,.dwrap .da,.dwrap .dm,.dgap{transition-duration:1ms!important;
+    transition-delay:0ms!important}
+  .yl{transition-delay:0ms!important}
+  .lrow.pz,.pnote{animation:none}
+}
 .lrow{display:flex;align-items:center;gap:11px;padding:10px 0;
   border-bottom:.5px solid rgba(255,255,255,.06)}
 .lrow .th{width:38px;height:56px;border-radius:5px;background:#1b1b21;flex:0 0 38px;
@@ -525,7 +616,10 @@ function sbDelete(table, query) {
 
 /* ---------------------------------------------- local model of the rows */
 
-function blank() { return { shared: false, solo: false, watched: false, rating: null, note: null }; }
+function blank() {
+  return { shared: false, solo: false, watched: false, rating: null, note: null,
+    passed: false };
+}
 function mineOf(key) { return state.mine[key] || (state.mine[key] = blank()); }
 
 function applyRow(bucket, row) {
@@ -535,6 +629,7 @@ function applyRow(bucket, row) {
   else if (row.kind === "watched") m.watched = true;
   else if (row.kind === "rating") m.rating = Number(row.value);
   else if (row.kind === "note") m.note = row.value;
+  else if (row.kind === "passed") m.passed = true;
 }
 
 function loadMine() {
@@ -586,6 +681,74 @@ function dropInteraction(it, kind) {
   return sbDelete("interaction",
     "user_id=eq." + state.me.id + "&media_key=eq." + encodeURIComponent(it.key) + "&kind=eq." + kind);
 }
+/* Writes against another person's rows. RLS is open, so this is possible at
+   all; it is also the only way a pass can work, because the row that has to
+   move belongs to them, not to you.
+
+   There is no transaction over REST, so the order is load-bearing: the private
+   row goes in before the shared row comes out. A failure between the two leaves
+   the title on both lists, which is visible and fixable. The other order could
+   drop it from both and lose their swipe outright. */
+function writeFor(userId, key, kind, value) {
+  return sbUpsert("interaction", [{
+    user_id: userId, media_key: key, kind: kind,
+    value: value === undefined ? null : value, updated_at: new Date().toISOString()
+  }], "user_id,media_key,kind");
+}
+function dropFor(userId, key, kind) {
+  return sbDelete("interaction",
+    "user_id=eq." + userId + "&media_key=eq." + encodeURIComponent(key) + "&kind=eq." + kind);
+}
+function otherUser() {
+  return state.users.filter(function (u) { return !state.me || u.id !== state.me.id; })[0] || null;
+}
+
+/* A pass is not a delete. The title leaves the shared pool and lands on the
+   private list of whoever put it forward, so their swipe survives -- it just
+   stops being a joint proposal. Only the person who did not add it can pass it,
+   which is why a matched title carries no pass control: once both have swiped
+   it right there is nothing one-sided left to decline.
+
+   lastPass carries the undo, including whether the title was already on their
+   private list beforehand. Without that flag an undo would delete a private row
+   they had put there themselves, long before any of this. */
+var lastPass = null;
+
+function passBack(key) {
+  var other = otherUser();
+  if (!state.me || !other) return Promise.reject(new Error("no second user"));
+  var th = state.theirs[key] || (state.theirs[key] = blank());
+  var hadSolo = !!th.solo;
+  lastPass = { key: key, uid: other.id, hadSolo: hadSolo };
+
+  th.shared = false; th.solo = true;
+  mineOf(key).passed = true;
+
+  return (hadSolo ? Promise.resolve() : writeFor(other.id, key, "playlist_solo"))
+    .then(function () { return dropFor(other.id, key, "playlist_shared"); })
+    .then(function () {
+      // Audit only, and last on purpose: it needs the kind added by passed.sql.
+      // Until that migration runs this one call 400s, and the move above still
+      // stands -- so the failure is swallowed rather than surfaced.
+      return writeFor(state.me.id, key, "passed").catch(function () {});
+    });
+}
+
+function undoPass() {
+  var p = lastPass;
+  if (!p || !state.me) return Promise.resolve();
+  lastPass = null;
+  var th = state.theirs[p.key] || (state.theirs[p.key] = blank());
+  th.shared = true; th.solo = p.hadSolo;
+  mineOf(p.key).passed = false;
+
+  return writeFor(p.uid, p.key, "playlist_shared")
+    .then(function () {
+      return p.hadSolo ? Promise.resolve() : dropFor(p.uid, p.key, "playlist_solo");
+    })
+    .then(function () { return dropFor(state.me.id, p.key, "passed").catch(function () {}); });
+}
+
 function loadMediaRows(keys) {
   var need = keys.filter(function (k) { return !mediaCache[k]; });
   if (!need.length) return Promise.resolve();
@@ -639,6 +802,94 @@ function omdbFetch(params) {
   if (!worker) return Promise.reject(new Error("no worker"));
   var q = new URLSearchParams(params).toString();
   return gTmdb().then(function () { return getJSON(worker + "/omdb?" + q, 9000); });
+}
+
+/* Every source lands on one 0-5 track. The divisors are the whole of the
+   conversion and are deliberately boring: a percentage is a percentage of five,
+   a ten-point score is halved, and Letterboxd already thinks in fives.
+
+   Nothing is weighted by vote count. IMDb's two million voters and Metacritic's
+   dozen critics count the same, which is indefensible as statistics and correct
+   as a product decision: a weighting nobody can reconstruct from the screen is
+   worse than a mean anybody can. The sheet says so in as many words. */
+var EXT_META = {
+  letterboxd: { label: "Letterboxd", scale: "/5", div: 1, tag: "weighted average" },
+  imdb: { label: "IMDb", scale: "/10", div: 2, tag: "" },
+  rt: { label: "Rotten Tomatoes", scale: "%", div: 20, tag: "tomatometer" },
+  metacritic: { label: "Metacritic", scale: "/100", div: 20, tag: "metascore" },
+  tmdb: { label: "TMDB", scale: "/10", div: 2, tag: "" },
+  mal: { label: "MyAnimeList", scale: "/10", div: 2, tag: "" },
+  tvmaze: { label: "TVMaze", scale: "/10", div: 2, tag: "community average" }
+};
+// Audience scores first, then critics, then the catalogue's own average. The
+// order is fixed so the stack never reshuffles between two titles.
+var EXT_ORDER = ["letterboxd", "imdb", "rt", "metacritic", "tmdb", "mal", "tvmaze"];
+
+function to5(source, value) {
+  var m = EXT_META[source];
+  if (!m || value == null || value === "" || isNaN(value)) return null;
+  var n = Number(value) / m.div;
+  return n < 0 ? 0 : (n > 5 ? 5 : n);
+}
+function nativeText(source, value) {
+  var m = EXT_META[source];
+  if (!m) return String(value);
+  return m.scale === "%" ? Math.round(value) + "%" : value + m.scale;
+}
+function isFilm(it) { return /movie|film/i.test(it.kind || ""); }
+
+/* Which sources could plausibly carry this title. Listing a source that was
+   never going to have a number -- MyAnimeList for a Scandinavian crime drama --
+   as "missing" turns a complete screen into a broken-looking one. */
+function expected(src, it) {
+  if (src === "mal") return it.source === "mal";
+  if (src === "tvmaze") return it.source === "tvmaze";
+  if (src === "tmdb") return it.source === "tmdb";
+  if (src === "letterboxd") return isFilm(it);
+  return true;                      // imdb, rt and metacritic all ride one OMDb call
+}
+
+/* Merges the database rows with whatever the feed adapter already carried. A
+   stored row wins over the live one: it has a fetched_at, so it can go stale
+   visibly, which the adapter's number cannot. */
+function extAll(it, ext) {
+  var out = {}, live = it.ratings || {};
+  EXT_ORDER.forEach(function (sc) {
+    var r = ext[sc];
+    if (r && r.value != null) {
+      out[sc] = { value: Number(r.value), at: r.fetched_at, manual: !!r.is_manual,
+        votes: r.votes != null ? Number(r.votes) : null };
+    }
+  });
+  ["tmdb", "mal", "tvmaze"].forEach(function (sc) {
+    if (out[sc] || live[sc] == null) return;
+    out[sc] = { value: Number(live[sc]), at: null, manual: false, live: true,
+      votes: live[sc + "Votes"] != null ? Number(live[sc + "Votes"]) : null };
+  });
+  return out;
+}
+
+function consensus(vals) {
+  var sum = 0, n = 0;
+  for (var sc in vals) {
+    var v = to5(sc, vals[sc].value);
+    if (v != null) { sum += v; n++; }
+  }
+  return n ? { avg: sum / n, n: n } : null;
+}
+
+function whyAbsent(src, it, loading) {
+  if (loading) return "checking";
+  if (src === "letterboxd") {
+    return isFilm(it) ? "nothing on the film's page" : "Letterboxd carries no television";
+  }
+  if (state.omdbOff) return "no OMDB_KEY on the worker";
+  if (!it.imdb && (src === "imdb" || src === "rt" || src === "metacritic")) {
+    return "no IMDb id from this source";
+  }
+  if (src === "rt") return "no tomatometer";
+  if (src === "metacritic") return "no metascore";
+  return "not published";
 }
 
 function numOr(v) {
@@ -1305,6 +1556,7 @@ function openSheet(title, html, footHTML) {
   el("veil").classList.add("on");
 }
 function closeSheet() {
+  passing = null; passedNote = null;
   el("sheet").classList.remove("on");
   el("veil").classList.remove("on");
   if (!el("prof").classList.contains("on") && typeof setNav === "function") setNav("nvFeed");
@@ -1331,57 +1583,153 @@ el("cLeft").onclick = function () {
   });
 };
 
+/* The ratings sheet. Three layers, in the order the eye wants them: one number
+   for "what does the world think", one line for "and what did I think", then
+   the per-source breakdown for anyone who wants to argue with the average.
+
+   Entry is animated because the comparison is spatial -- bars growing to
+   different lengths under a fixed marker says "these disagree, and by this
+   much" in a way five static numbers in a column never did. */
+var ratingsRAF = 0;
+var OUT_ARC = 216.77, IN_ARC = 164.93;   // 270 degrees of r=46 and r=35
+
+function gapChip(con, mine) {
+  if (mine == null) {
+    return '<div class="dgap cold" id="dGap">rate it to see where you land</div>';
+  }
+  if (!con) return '<div class="dgap" id="dGap">you rated ' + mine.toFixed(1) + "</div>";
+  var d = mine - con.avg;
+  return '<div class="dgap" id="dGap">' + (Math.abs(d) < 0.05
+    ? "you rated " + mine.toFixed(1) + " — dead on the average"
+    : "you rated " + mine.toFixed(1) + " · " + Math.abs(d).toFixed(1) +
+      (d > 0 ? " above" : " below")) + "</div>";
+}
+
 function paintRatings(it, ext, loading) {
-  var rows = [], mi = state.mine[it.key] || blank();
   ext = ext || {};
-  function row(src, val, sub, scale) {
-    rows.push('<div class="rrow"><div class="src">' + src +
-      (sub ? '<div class="sub">' + sub + "</div>" : "") + "</div>" +
-      (val == null ? '<div class="abs">' + (loading ? "checking…" : "not available") + "</div>"
-        : '<div class="val">' + val + '<span style="font-size:12px;color:#6a6963">' + scale + "</span></div>") + "</div>");
-  }
-  function sourced(r, extra) {
+  var mi = state.mine[it.key] || blank();
+  var mine = mi.rating;
+  var vals = extAll(it, ext);
+  var con = consensus(vals);
+  var mf = mine != null ? mine / 5 : 0;
+
+  var dial = '<div class="rdial"><div class="dwrap">' +
+    '<svg viewBox="0 0 104 104" aria-hidden="true">' +
+      '<circle class="dt" cx="52" cy="52" r="46" stroke-dasharray="216.77 72.26"></circle>' +
+      (mine != null ? '<circle class="dmt" cx="52" cy="52" r="35" ' +
+        'stroke-dasharray="164.93 54.98"></circle>' : "") +
+      '<circle class="da" id="dArc" cx="52" cy="52" r="46" ' +
+        'stroke-dasharray="216.77 72.26" stroke-dashoffset="' + OUT_ARC + '"></circle>' +
+      (mine != null ? '<circle class="dm" id="dMine" cx="52" cy="52" r="35" ' +
+        'stroke-dasharray="164.93 54.98" stroke-dashoffset="' + IN_ARC + '"></circle>' : "") +
+    "</svg>" +
+    '<div class="dval"><b id="dNum">' + (con ? "0.0" : "—") + "</b><i>/5</i></div>" +
+    "</div><div class=\"dmeta\">" +
+      '<div class="dlead">' + (con ? "World average" : loading ? "Checking" : "No scores") + "</div>" +
+      '<div class="dsub">' + (con
+        ? "mean of " + con.n + " source" + (con.n === 1 ? "" : "s") +
+          ", each converted to a five-point scale"
+        : loading ? "asking every source we have" : "nothing published for this title yet") +
+      "</div>" + gapChip(con, mine) +
+    "</div></div>";
+
+  var present = EXT_ORDER.filter(function (sc) { return vals[sc]; });
+  var bars = present.map(function (sc, n) {
+    var m = EXT_META[sc], r = vals[sc], v5 = to5(sc, r.value);
     var bits = [];
-    if (extra) bits.push(extra);
-    bits.push("fetched " + agoText(r.fetched_at));
-    if (r.is_manual) bits.push("entered by hand");
-    return bits.join(" · ");
+    if (r.votes) bits.push(r.votes.toLocaleString() + " votes");
+    if (m.tag) bits.push(m.tag);
+    if (r.manual) bits.push("entered by hand");
+    else if (r.live) bits.push("live from this source");
+    else if (r.at) bits.push("fetched " + agoText(r.at));
+    return '<div class="rbar">' +
+      '<div class="rbhd"><span class="nm">' + m.label + "</span>" +
+        '<span class="ag">' + esc(bits.join(" · ")) + "</span>" +
+        '<span class="nat">' + nativeText(sc, r.value) + "</span>" +
+        '<span class="n5">' + v5.toFixed(1) + "</span></div>" +
+      '<div class="rtrack' + (mine != null ? " marked" : "") + '">' +
+        '<i class="fl" data-w="' + (v5 / 5 * 100).toFixed(2) +
+          '" style="transition-delay:' + (n * 70) + 'ms"></i>' +
+        (mine != null ? '<b class="yl" style="left:' + (mf * 100).toFixed(2) + '%"></b>' : "") +
+      "</div></div>";
+  }).join("");
+
+  var stack = present.length
+    ? '<div class="rstack">' + bars +
+      '<div class="raxis"><span>0</span><span>1</span><span>2</span><span>3</span>' +
+      "<span>4</span><span>5</span></div></div>"
+    : "";
+
+  var legend = "";
+  if (present.length && mine != null) {
+    legend = '<div class="rmine"><i class="dot"></i><span>The amber line is your ' +
+      mine.toFixed(1) + ". Bars that stop short of it scored lower than you did; " +
+      "bars that run past it scored higher.</span></div>";
+  } else if (present.length) {
+    legend = '<div class="rmine"><span>Rate this and the line appears across every ' +
+      "bar, so your score reads against the rest in place.</span></div>";
   }
 
-  if (it.source === "tmdb") row("TMDB", it.ratings.tmdb, it.ratings.tmdbVotes ? it.ratings.tmdbVotes.toLocaleString() + " votes" : "", "/10");
-  if (it.source === "tvmaze") row("TVMaze", it.ratings.tvmaze, "community average", "/10");
-  if (it.source === "mal") row("MyAnimeList", it.ratings.mal, it.ratings.malVotes ? it.ratings.malVotes.toLocaleString() + " votes" : "", "/10");
+  var gone = EXT_ORDER.filter(function (sc) { return !vals[sc] && expected(sc, it); });
+  var absent = gone.length
+    ? '<p class="rnone">No score: ' + gone.map(function (sc) {
+        return "<b>" + EXT_META[sc].label + "</b> — " + esc(whyAbsent(sc, it, loading));
+      }).join("; ") + ".</p>"
+    : "";
 
-  var im = ext.imdb;
-  row("IMDb", im ? im.value : null,
-    im ? sourced(im, im.votes ? im.votes.toLocaleString() + " votes" : "")
-       : (loading ? "" : (state.omdbOff ? "add an OMDB_KEY secret to the worker"
-          : (it.imdb ? "OMDb returned no score" : "no IMDb id from this source"))), "/10");
-
-  var mc = ext.metacritic;
-  row("Metacritic", mc ? mc.value : null,
-    mc ? sourced(mc, "metascore")
-       : (loading ? "" : (state.omdbOff ? "add an OMDB_KEY secret to the worker"
-          : "no metascore for this title")), "/100");
-
-  row("Letterboxd", null, loading ? "" : "API access requested", "/5");
-
-  var rt = ext.rt;
-  row("Rotten Tomatoes", rt ? rt.value : null,
-    rt ? sourced(rt, "tomatometer")
-       : (loading ? "" : (state.omdbOff ? "add an OMDB_KEY secret to the worker"
-          : "OMDb has no tomatometer for this title")), "%");
-
-  row("You", mi.rating, mi.rating != null ? "your rating" : "not rated yet", "/5");
-
-  openSheet("Ratings", rows.join("") +
+  openSheet("Ratings", dial + stack + legend + absent +
     (ext._writeError
       ? '<p class="credit bad">Shown but not saved — writing to media_rating failed: ' +
         esc(ext._writeError) + ". These scores will be refetched every time until that is fixed.</p>"
       : "") +
-    '<p class="credit">Each score carries where it came from and when, so a stale ' +
-    "number is visible as stale rather than passing for current. Absent is a real " +
-    "state, not an error.</p>");
+    '<p class="credit">Each source is converted to a five-point scale so your own ' +
+    "rating is comparable at a glance, with the native number kept beside it. The " +
+    "average is unweighted: IMDb's millions and Metacritic's dozen critics count " +
+    "equally, because a weighting you cannot reconstruct from this screen is worse " +
+    "than a mean you can. Every score carries when it was fetched, so a stale " +
+    "number looks stale rather than passing for current. Absent is a real state, " +
+    "not an error.</p>");
+
+  animateRatings(con, mine);
+}
+
+/* Widths and dash offsets are written one frame after the markup lands. Setting
+   them in the same frame as the element is created gives no transition at all --
+   the browser has no previous value to interpolate from, so it paints the final
+   state and the motion is simply lost. */
+function animateRatings(con, mine) {
+  var rq = window.requestAnimationFrame || function (f) { return setTimeout(f, 16); };
+  var rc = window.cancelAnimationFrame || clearTimeout;
+  rc(ratingsRAF);
+  ratingsRAF = rq(function () {
+    var body = el("shBody");
+    if (!body) return;
+    Array.prototype.forEach.call(body.querySelectorAll(".rtrack .fl"), function (n) {
+      n.style.width = n.getAttribute("data-w") + "%";
+    });
+    var arc = body.querySelector("#dArc");
+    if (arc && con) arc.style.strokeDashoffset = (OUT_ARC * (1 - con.avg / 5)).toFixed(2);
+    var dm = body.querySelector("#dMine");
+    if (dm && mine != null) dm.style.strokeDashoffset = (IN_ARC * (1 - mine / 5)).toFixed(2);
+    var gap = body.querySelector("#dGap");
+    if (gap) gap.className = gap.className + " in";
+    if (con) countUp(body.querySelector("#dNum"), con.avg, 820);
+  });
+}
+
+/* Counts the headline number up rather than printing it. Cubic ease-out, so it
+   decelerates into the value instead of stopping dead on it. */
+function countUp(node, to, ms) {
+  if (!node) return;
+  var rq = window.requestAnimationFrame || function (f) { return setTimeout(f, 16); };
+  var t0 = 0;
+  function step(ts) {
+    if (!t0) t0 = ts || Date.now();
+    var p = Math.min(1, ((ts || Date.now()) - t0) / ms);
+    node.textContent = (to * (1 - Math.pow(1 - p, 3))).toFixed(1);
+    if (p < 1) rq(step);
+  }
+  rq(step);
 }
 
 el("cRight").onclick = function () {
@@ -1554,14 +1902,53 @@ function whoStack(k) {
     }).join("") + "</div>";
 }
 
-function listRows(keys) {
+/* The pass control appears on exactly one kind of row: shared, put forward by
+   the other person, not seconded by you. A match is not one-sided and so is not
+   refusable here; your own entries you simply un-add. */
+function canPass(k) {
+  var mi = state.mine[k] || blank(), th = state.theirs[k] || blank();
+  return !!(th.shared && !mi.shared && otherUser());
+}
+
+var passing = null, passedNote = null;
+
+var RETURN_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true">' +
+  '<path d="M9 5 4 10l5 5"></path><path d="M4 10h10a5 5 0 0 1 0 10h-3"></path></svg>';
+
+function listRows(keys, mode) {
   return keys.map(function (k) {
     var rec = mediaCache[k] || {}, mi = state.mine[k] || blank();
-    return '<div class="lrow">' +
-      '<div class="th" style="' + (rec.poster ? "background-image:url('" + esc(rec.poster) + "')" : "") + '"></div>' +
+    var th = state.theirs[k] || blank();
+    var poster = '<div class="th" style="' +
+      (rec.poster ? "background-image:url('" + esc(rec.poster) + "')" : "") + '"></div>';
+
+    /* The confirm takes over the row it belongs to rather than opening a dialog
+       over it. The title stays on screen under your thumb, which is what you
+       need to see while deciding, and there is no second surface to dismiss. */
+    if (mode === "shared" && passing === k && canPass(k)) {
+      return '<div class="lrow pz">' + poster +
+        '<div class="lt">Hand back to ' + esc(otherName()) + "?" +
+        "<span>Leaves the shared pool and lands on their own list. " +
+        "They keep it; you stop seeing it here.</span></div>" +
+        '<button class="pbtn" data-keep="' + esc(k) + '">Keep</button>' +
+        '<button class="pbtn go" data-pass="' + esc(k) + '">Pass</button></div>';
+    }
+
+    var tail = "";
+    if (mode === "shared" && canPass(k)) {
+      tail = '<button class="pbx" data-ask="' + esc(k) + '" aria-label="' +
+        esc("Hand " + (rec.title || "this title") + " back to " + otherName()) +
+        '">' + RETURN_ICON + "</button>";
+    } else if (mode === "solo" && th.passed) {
+      tail = '<span class="ptag">' + esc(otherName()) + " passed</span>";
+    }
+
+    return '<div class="lrow">' + poster +
       '<div class="lt">' + esc(rec.title || k) +
-      (mi.rating != null ? ' <span style="color:#5dcaa5;font-size:12px">' + mi.rating.toFixed(1) + "</span>" : "") +
-      "</div>" + whoStack(k) + '<div class="ly">' + (rec.year || "") + "</div></div>";
+      (mi.rating != null ? ' <span style="color:#5dcaa5;font-size:12px">' +
+        mi.rating.toFixed(1) + "</span>" : "") +
+      "</div>" + whoStack(k) + '<div class="ly">' + (rec.year || "") + "</div>" +
+      tail + "</div>";
   }).join("");
 }
 
@@ -1592,11 +1979,55 @@ function showList(mode) {
           p[1] + (p[2] ? " " + p[2] : "") + "</div>";
       }).join("") + "</div>";
 
+  /* The undo lives in the list rather than in a timed toast. A pass moves data
+     that belongs to someone else, and a five-second window to take it back is a
+     race the user loses every time they look away from the phone. This note
+     stays until the sheet closes or the segment changes. */
+  var note = "";
+  if (passedNote && listMode === "shared" && lastPass && lastPass.key === passedNote) {
+    var pr = mediaCache[passedNote] || {};
+    note = '<div class="pnote"><span>' + esc(pr.title || "That title") +
+      " is now on " + esc(otherName()) + "'s own list.</span>" +
+      '<b id="pUndo">Undo</b></div>';
+  }
+
   function paint(bodyHTML) {
-    openSheet("Lists", seg + bodyHTML);
-    Array.prototype.forEach.call(el("shBody").querySelectorAll(".sg"), function (n) {
-      n.onclick = function () { showList(n.dataset.m); };
+    openSheet("Lists", seg + note + bodyHTML);
+    var body = el("shBody");
+    Array.prototype.forEach.call(body.querySelectorAll(".sg"), function (n) {
+      n.onclick = function () {
+        passing = null; passedNote = null;
+        showList(n.dataset.m);
+      };
     });
+    Array.prototype.forEach.call(body.querySelectorAll("[data-ask]"), function (n) {
+      n.onclick = function () { passing = n.getAttribute("data-ask"); showList(); };
+    });
+    Array.prototype.forEach.call(body.querySelectorAll("[data-keep]"), function (n) {
+      n.onclick = function () { passing = null; showList(); };
+    });
+    Array.prototype.forEach.call(body.querySelectorAll("[data-pass]"), function (n) {
+      n.onclick = function () {
+        var k = n.getAttribute("data-pass");
+        passing = null; passedNote = k;
+        passBack(k).catch(function (e) {
+          passedNote = null;
+          flash("so", "Not saved: " + e.message);
+          showList();
+        });
+        counts();
+        showList();
+      };
+    });
+    var u = body.querySelector("#pUndo");
+    if (u) {
+      u.onclick = function () {
+        passedNote = null;
+        undoPass().catch(function (e) { flash("so", "Not undone: " + e.message); });
+        counts();
+        showList();
+      };
+    }
   }
 
   if (!keys.length) {
@@ -1607,10 +2038,13 @@ function showList(mode) {
   }
   paint('<p class="msg">Loading…</p>');
   loadMediaRows(keys).then(function () {
-    paint(listRows(keys) + '<p class="credit">' + (listMode === "mutual"
+    paint(listRows(keys, listMode) + '<p class="credit">' + (listMode === "mutual"
       ? "Titles you have both swiped right. This is the list that decides what you watch together."
       : listMode === "shared"
-        ? "Everything either of you put forward. One initial is a request; both is a match."
+        ? "Everything either of you put forward. One initial is a request; both is a match. " +
+          "A request only " + esc(otherName()) + " made can be handed back with the arrow: " +
+          "it leaves this list and stays on theirs, privately. Matches cannot — " +
+          "you already agreed."
         : "Yours alone. " + esc(otherName()) + " never sees this list.") + "</p>");
   });
 }

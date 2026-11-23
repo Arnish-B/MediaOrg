@@ -51,7 +51,10 @@ create table if not exists interaction (
   media_key  text not null references media(key)   on delete cascade,
   kind       text not null check (kind in (
                 'watched', 'rating', 'note',
-                'playlist_shared', 'playlist_solo', 'progress')),
+                'playlist_shared', 'playlist_solo', 'progress',
+                -- one person declining a title the other put forward alone;
+                -- see passed.sql, which adds this to an existing deployment
+                'passed')),
   value      jsonb,                      -- rating: 4.5 | note: "..." | progress: {"s":1,"e":12}
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
