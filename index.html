@@ -11,7 +11,19 @@
 <meta name="apple-mobile-web-app-title" content="Reel">
 <link rel="manifest" href='data:application/json,{"name":"Reel","short_name":"Reel","start_url":".","display":"standalone","background_color":"%230a0a0c","theme_color":"%230a0a0c","icons":[{"src":"data:image/svg%2Bxml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 192 192%27%3E%3Crect width=%27192%27 height=%27192%27 fill=%27%230a0a0c%27/%3E%3Ccircle cx=%2796%27 cy=%2796%27 r=%2742%27 fill=%27none%27 stroke=%27%235dcaa5%27 stroke-width=%2710%27/%3E%3C/svg%3E","sizes":"192x192","type":"image/svg+xml"}]}'>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+/* An app, not a document. Chrome is not selectable: a long press on a poster
+   should start a drag, not paint a blue rectangle over the shelf, and a swipe
+   that drifts a few pixels should not select the card's title on the way past.
+   Selection is then handed back, deliberately, to the places that are actually
+   prose -- synopses, notes, cast names, the credit lines -- where wanting to
+   copy a sentence is a reasonable thing to want. */
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;
+  -webkit-user-select:none;-moz-user-select:none;user-select:none;
+  -webkit-touch-callout:none}
+.short,.long,.samenote,.msg,.credit,.tag,.meta,.rnone,.dsub,.rmine,
+.crow .nm,.crow .ch,.lrow .lt,.rbhd .nm,.season .sn,h1,input,textarea{
+  -webkit-user-select:text;-moz-user-select:text;user-select:text;cursor:auto}
+input,textarea{cursor:text}
 html,body{height:100%;overflow:hidden;background:#0a0a0c;color:#f2f1ee;
   font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
   -webkit-font-smoothing:antialiased}
@@ -385,19 +397,57 @@ button.f:disabled{opacity:.45}
 #pfBody{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
   padding:14px 0 calc(28px + env(safe-area-inset-bottom))}
 
-.tier{margin-bottom:20px}
+/* The shelf is the drop target, so it needs an area of its own to light up --
+   hence the padding and the radius, which do nothing until something is being
+   dragged over them. */
+.tier{margin-bottom:14px;padding:8px 0 6px;border-radius:13px;
+  transition:background .16s ease,box-shadow .16s ease}
+.tier.over{background:rgba(93,202,165,.075);
+  box-shadow:inset 0 0 0 1px rgba(93,202,165,.3)}
+.tier.over .tierHead .tl{color:#5dcaa5;border-bottom-color:rgba(93,202,165,.4)}
+.tier.over .empty{color:#5dcaa5}
+/* The shelf a dragged title came from, so the origin stays legible while the
+   finger is somewhere else entirely. */
+.tier.from{box-shadow:inset 0 0 0 1px rgba(255,255,255,.09)}
 .tierHead{display:flex;align-items:baseline;gap:9px;padding:0 18px 8px}
 .tierHead .tl{font-size:15px;font-weight:600;cursor:pointer;border-bottom:1px dashed rgba(255,255,255,.2)}
 .tierHead .tb{font-size:11px;color:#6a6963;font-variant-numeric:tabular-nums}
 .tierHead .tc{font-size:11px;color:#6a6963;margin-left:auto}
 .strip{display:flex;gap:8px;overflow-x:auto;padding:0 18px 4px;-webkit-overflow-scrolling:touch}
 .strip::-webkit-scrollbar{display:none}
-.tile{flex:0 0 74px;cursor:pointer}
+.tile{flex:0 0 74px;cursor:grab;touch-action:pan-x;
+  transition:opacity .18s ease,transform .18s cubic-bezier(.2,.8,.2,1)}
+.tile.lift{transform:scale(.94)}
+.tile.ghosted{opacity:.2}
+#pfBody.dragging{cursor:grabbing}
+#pfBody.dragging .tile{cursor:grabbing}
+/* The thing under the finger. Fixed, so neither the strip's horizontal scroll
+   nor the shelf list's vertical one can clip it. */
+#dghost{position:fixed;left:0;top:0;z-index:40;width:74px;pointer-events:none;
+  opacity:0;transform-origin:50% 50%;will-change:transform}
+#dghost.on{opacity:1}
+#dghost .gp{width:74px;height:106px;border-radius:8px;background-size:cover;
+  background-position:center;background-color:#1b1b21;
+  box-shadow:0 20px 40px -10px rgba(0,0,0,.95),0 0 0 1.5px rgba(255,255,255,.28)}
+#dghost .gr{position:absolute;right:-7px;top:-9px;font-size:10px;font-weight:700;
+  background:#5dcaa5;color:#06281e;border-radius:7px;padding:2px 6px;
+  font-variant-numeric:tabular-nums;box-shadow:0 3px 10px rgba(0,0,0,.6)}
+#dghost .gr.clear{background:#55544e;color:#e4e2dc}
 .tile .tp{width:74px;height:106px;border-radius:7px;background:#1b1b21;
   background-size:cover;background-position:center}
 .tile .tt{font-size:10.5px;color:#9a988f;margin-top:4px;line-height:1.25;
   display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .empty{font-size:12px;color:#55544e;padding:0 18px 4px}
+.shelves{display:flex;flex-direction:column;gap:6px;margin-top:9px}
+.shb{display:flex;align-items:baseline;gap:9px;width:100%;text-align:left;cursor:pointer;
+  font-size:13.5px;font-weight:500;color:#cfcdc5;padding:10px 12px;border-radius:10px;
+  background:rgba(255,255,255,.045);border:.5px solid rgba(255,255,255,.09);
+  font-family:inherit;transition:background .14s,border-color .14s}
+.shb:active{background:rgba(93,202,165,.14);border-color:rgba(93,202,165,.4)}
+.shb span{margin-left:auto;font-size:11px;color:#6a6963;font-weight:400;
+  font-variant-numeric:tabular-nums}
+.shb.on{background:rgba(93,202,165,.1);border-color:rgba(93,202,165,.28);color:#9fe1cb}
+.shb.on span{color:#5dcaa5}
 
 #filters{display:flex;gap:6px;overflow-x:auto;padding:0 18px 12px;-webkit-overflow-scrolling:touch}
 #filters::-webkit-scrollbar{display:none}
@@ -486,6 +536,7 @@ button.f:disabled{opacity:.45}
 
 <div class="flash" id="flash"><span></span></div>
 <div id="veil"></div>
+<div id="dghost"><div class="gp"></div></div>
 <div id="sheet">
   <div id="grab"></div>
   <div id="shHead"><h2>—</h2><div id="shClose" role="button" aria-label="Close">×</div></div>
@@ -2308,7 +2359,7 @@ function renderTiers() {
     var ks = byTier[t.idx] || [];
     var bounds = t.lower_bound == null ? "no rating"
       : Number(t.lower_bound).toFixed(1) + " – " + Number(t.upper_bound).toFixed(1);
-    return '<div class="tier"><div class="tierHead">' +
+    return '<div class="tier" data-tier="' + t.idx + '"><div class="tierHead">' +
       '<span class="tl" data-idx="' + t.idx + '">' + esc(t.label) + "</span>" +
       '<span class="tb">' + bounds + "</span>" +
       '<span class="tc">' + ks.length + "</span></div>" +
@@ -2316,8 +2367,12 @@ function renderTiers() {
                  : '<p class="empty">Nothing here yet.</p>') + "</div>";
   }).join("");
   el("pfBody").innerHTML = html +
-    '<p class="credit" style="padding:0 18px">Tap a shelf name to rename it. Shelf bounds are fixed; ' +
-    "what each one means is yours to decide.</p>";
+    '<p class="credit" style="padding:0 18px">Press and hold a poster to lift it, then drag it to ' +
+    "another shelf; the badge on the card shows the rating it will land on before you let go. " +
+    "A title keeps its height within a band, so moving it down and back up returns the score it " +
+    "started with. Dropping it on the unrated shelf clears the rating outright. Shelves hold no " +
+    "order of their own, so moving a title within one changes nothing. Tap a shelf name to rename " +
+    "it — the bounds are fixed, what each one means is yours.</p>";
 
   Array.prototype.forEach.call(el("pfBody").querySelectorAll(".tl"), function (node) {
     node.onclick = function () {
@@ -2338,9 +2393,251 @@ function renderTiers() {
   bindTiles();
 }
 
+/* Where a title lands when it is dropped on a shelf.
+
+   The rule is to preserve its offset from the bottom of the band it was in, so
+   a title sitting at the top of Strong arrives at the top of Canon, and moving
+   it down and back up returns the rating it started with rather than quietly
+   rounding it away. That holds for any two bands of equal width, which is every
+   pair in the default six; where widths differ the value is clamped into the
+   new band instead.
+
+   Bands are lower-exclusive and upper-inclusive -- "3.0 to 4.0" owns 3.5 and
+   4.0, not 3.0 -- so a computed value landing exactly on the lower bound is
+   pushed up one half-step. Everything is quantised to halves, because that is
+   the only thing the rate sheet can express. */
+function ratingForShelf(oldRating, target) {
+  if (target.lower_bound == null) return null;          // shelf 0 clears the rating
+  var lo = Number(target.lower_bound), hi = Number(target.upper_bound);
+  var offset = 0.5;                                     // an unrated title takes the bottom step
+  if (oldRating != null) {
+    var src = null, i;
+    for (i = 0; i < state.tiers.length; i++) {
+      var t = state.tiers[i];
+      if (t.lower_bound == null) continue;
+      if (oldRating > Number(t.lower_bound) && oldRating <= Number(t.upper_bound)) { src = t; break; }
+    }
+    if (src) offset = oldRating - Number(src.lower_bound);
+  }
+  var v = Math.round((lo + offset) * 2) / 2;
+  if (v <= lo) v = lo + 0.5;
+  if (v > hi) v = hi;
+  return v;
+}
+
+/* Writes the rating directly rather than through writeInteraction, which would
+   re-upsert the media row first. Anything visible on a shelf is already in
+   `media` -- that is how it has a poster -- and the tier list does not hold the
+   source field, so re-sending the row would blank it. */
+/* needWatched is passed in rather than read back off state, because the caller
+   updates the local model optimistically before this runs. Reading it here
+   would see the optimistic `watched = true` and conclude the row already
+   existed, so the write that makes it true in the database would never be
+   sent -- correct on screen, wrong on the other person's phone. */
+function setRatingByKey(key, value, needWatched) {
+  if (value == null) {
+    return sbDelete("interaction", "user_id=eq." + state.me.id +
+      "&media_key=eq." + encodeURIComponent(key) + "&kind=eq.rating");
+  }
+  var now = new Date().toISOString();
+  var rows = [{ user_id: state.me.id, media_key: key, kind: "rating", value: value, updated_at: now }];
+  // Rating implies watched, in the client as well as in trigger.sql. Sent in
+  // the same statement so the two cannot disagree if a second request fails.
+  if (needWatched) {
+    rows.push({ user_id: state.me.id, media_key: key, kind: "watched", value: null, updated_at: now });
+  }
+  return sbUpsert("interaction", rows, "user_id,media_key,kind");
+}
+
+/* Applies a drop: optimistic locally, reverted loudly if the write fails. */
+function moveToShelf(key, idx) {
+  var target = state.tiers.filter(function (t) { return t.idx === idx; })[0];
+  if (!target) return;
+  var rec = state.mine[key] || (state.mine[key] = blank());
+  var before = rec.rating, beforeWatched = rec.watched;
+  var next = ratingForShelf(before, target);
+  if (next === before) { renderTiers(); return; }
+
+  rec.rating = next;
+  if (next != null) rec.watched = true;
+  state.ratings = state.ratings.filter(function (r) { return r.key !== key; });
+  if (next != null) state.ratings.push({ key: key, value: next });
+  renderTiers();
+
+  var title = (mediaCache[key] || {}).title || "That title";
+  flash(next == null ? "so" : "sh", next == null
+    ? title + " is unrated again"
+    : title + " · " + next.toFixed(1) + " · " + target.label);
+
+  setRatingByKey(key, next, next != null && !beforeWatched).catch(function (e) {
+    rec.rating = before; rec.watched = beforeWatched;
+    state.ratings = state.ratings.filter(function (r) { return r.key !== key; });
+    if (before != null) state.ratings.push({ key: key, value: before });
+    renderTiers();
+    flash("so", "Not saved: " + e.message);
+  });
+}
+
+/* Long press to lift, drag to a shelf, release to drop.
+
+   Long press rather than an immediate grab, because the strips scroll
+   horizontally and the shelf list scrolls vertically: an immediate grab would
+   make both impossible. Once the press is recognised, touchmove is cancelled --
+   which works only because no scroll has begun during the hold, and only
+   because the listener is registered non-passive. */
+var DRAG_HOLD = 320, DRAG_SLOP = 9, EDGE = 86, EDGE_SPEED = 13;
+
+function bindTileDrag(node, key) {
+  var timer = 0, armed = false, live = false, sx = 0, sy = 0, moved = false;
+  var ghost = el("dghost"), body = el("pfBody"), tiers = [], over = null, edge = 0, raf = 0;
+
+  function point(ev) {
+    var t = ev.touches && ev.touches[0];
+    return t ? { x: t.clientX, y: t.clientY } : { x: ev.clientX, y: ev.clientY };
+  }
+
+  function lift(p) {
+    live = true; moved = true;
+    var rec = mediaCache[key] || {};
+    ghost.querySelector(".gp").style.backgroundImage =
+      rec.poster ? "url('" + rec.poster + "')" : "";
+    ghost.className = "on";
+    node.className = "tile ghosted";
+    body.className = (body.className || "").replace(/ ?dragging/, "") + " dragging";
+    // Measured once per drag: the shelves cannot move while a finger is down,
+    // except by auto-scroll, which updates them itself.
+    measure();
+    markFrom();
+    if (navigator.vibrate) { try { navigator.vibrate(11); } catch (e) {} }
+    place(p);
+  }
+
+  function measure() {
+    tiers = [];
+    Array.prototype.forEach.call(body.querySelectorAll(".tier"), function (n) {
+      tiers.push({ node: n, idx: parseInt(n.getAttribute("data-tier"), 10), r: n.getBoundingClientRect() });
+    });
+  }
+  function markFrom() {
+    var from = tierOf((state.mine[key] || blank()).rating);
+    tiers.forEach(function (t) {
+      if (t.idx === from) t.node.className = "tier from";
+    });
+  }
+
+  function place(p) {
+    ghost.style.transform = "translate3d(" + (p.x - 37) + "px," + (p.y - 53) + "px,0) scale(1.07)";
+    var hit = null;
+    for (var i = 0; i < tiers.length; i++) {
+      if (p.y >= tiers[i].r.top && p.y <= tiers[i].r.bottom) { hit = tiers[i]; break; }
+    }
+    if (hit !== over) {
+      if (over) over.node.className = "tier" + (over.idx === tierOf((state.mine[key] || blank()).rating) ? " from" : "");
+      over = hit;
+      if (over) {
+        over.node.className = "tier over";
+        if (navigator.vibrate) { try { navigator.vibrate(6); } catch (e) {} }
+      }
+      badge();
+    }
+    edge = p.y < EDGE ? -1 : (p.y > window.innerHeight - EDGE ? 1 : 0);
+    if (edge && !raf) raf = requestAnimationFrame(scroll);
+  }
+
+  /* What the drop will actually do, shown on the ghost, so the half-step is a
+     decision the user watched being made rather than one they discover after. */
+  function badge() {
+    var old = ghost.querySelector(".gr");
+    if (old) old.parentNode.removeChild(old);
+    if (!over) return;
+    var target = state.tiers.filter(function (t) { return t.idx === over.idx; })[0];
+    if (!target) return;
+    var v = ratingForShelf((state.mine[key] || blank()).rating, target);
+    var b = document.createElement("div");
+    b.className = "gr" + (v == null ? " clear" : "");
+    b.textContent = v == null ? "—" : v.toFixed(1);
+    ghost.appendChild(b);
+  }
+
+  function scroll() {
+    raf = 0;
+    if (!live || !edge) return;
+    body.scrollTop += edge * EDGE_SPEED;
+    measure();
+    raf = requestAnimationFrame(scroll);
+  }
+
+  function end(ev) {
+    clearTimeout(timer);
+    document.removeEventListener("touchmove", move, { passive: false });
+    document.removeEventListener("touchend", end);
+    document.removeEventListener("touchcancel", end);
+    document.removeEventListener("mousemove", move);
+    document.removeEventListener("mouseup", end);
+    node.className = "tile";
+    if (!live) { armed = false; return; }
+    live = false; armed = false;
+    edge = 0;
+    if (raf) { cancelAnimationFrame(raf); raf = 0; }
+    ghost.className = "";
+    ghost.style.transform = "";
+    var b = ghost.querySelector(".gr");
+    if (b) b.parentNode.removeChild(b);
+    body.className = (body.className || "").replace(/ ?dragging/, "");
+    var landed = over;
+    tiers.forEach(function (t) { t.node.className = "tier"; });
+    over = null;
+    if (landed) moveToShelf(key, landed.idx);
+    else renderTiers();
+  }
+
+  function move(ev) {
+    var p = point(ev);
+    if (live) {
+      // Cancels the scroll the strip would otherwise do. Only reachable after
+      // the hold, so no scroll is in flight to fight with.
+      if (ev.cancelable) ev.preventDefault();
+      place(p);
+      return;
+    }
+    if (Math.abs(p.x - sx) > DRAG_SLOP || Math.abs(p.y - sy) > DRAG_SLOP) {
+      clearTimeout(timer);
+      node.className = "tile";
+      armed = false;
+      document.removeEventListener("touchmove", move, { passive: false });
+      document.removeEventListener("touchend", end);
+      document.removeEventListener("touchcancel", end);
+      document.removeEventListener("mousemove", move);
+      document.removeEventListener("mouseup", end);
+    }
+  }
+
+  function start(ev) {
+    if (armed || live) return;
+    if (ev.touches && ev.touches.length > 1) return;
+    var p = point(ev);
+    sx = p.x; sy = p.y; armed = true; moved = false;
+    node.className = "tile lift";
+    document.addEventListener("touchmove", move, { passive: false });
+    document.addEventListener("touchend", end);
+    document.addEventListener("touchcancel", end);
+    document.addEventListener("mousemove", move);
+    document.addEventListener("mouseup", end);
+    timer = setTimeout(function () { lift(p); }, DRAG_HOLD);
+  }
+
+  node.addEventListener("touchstart", start, { passive: true });
+  node.addEventListener("mousedown", function (ev) { ev.preventDefault(); start(ev); });
+  node.wasDragged = function () { return moved; };
+}
+
 function bindTiles() {
   Array.prototype.forEach.call(el("pfBody").querySelectorAll("[data-k]"), function (node) {
+    bindTileDrag(node, node.dataset.k);
     node.onclick = function () {
+      // A drag ends in a click on most browsers. Swallow it, or every drop
+      // would also open the sheet for the title just dropped.
+      if (node.wasDragged && node.wasDragged()) return;
       var k = node.dataset.k, rec = mediaCache[k] || {}, mi = state.mine[k] || blank();
       var th = state.theirs[k] || blank();
       var lines = [];
@@ -2354,7 +2651,33 @@ function bindTiles() {
         '<p class="msg">' + (rec.year ? rec.year + " · " : "") + esc(rec.kind || "") + "</p>" +
         (lines.length ? '<p class="msg">' + esc(lines.join(". ")) + ".</p>" : "") +
         (mi.note ? '<p class="short" style="margin-top:14px">' + esc(mi.note) + "</p>" : "") +
-        '<p class="credit">Editing from here arrives with the library rework; for now the feed is where you change things.</p>');
+        shelfPicker(k, mi.rating) +
+        '<p class="credit">Dragging the poster does the same thing. This list is here because a ' +
+        "drag is not available to everyone, and because a precise score is easier to pick than to " +
+        "aim at. Anything else about the title still changes from the feed.</p>");
+      bindShelfPicker(k);
+    };
+  });
+}
+
+/* The same move, as a list. A gesture that is the only way to reach a feature
+   is a feature some people do not have. */
+function shelfPicker(key, current) {
+  var now = tierOf(current);
+  return '<p class="dlead" style="margin-top:16px">Move to a shelf</p><div class="shelves">' +
+    state.tiers.map(function (t) {
+      var v = ratingForShelf(current, t);
+      return '<button class="shb' + (t.idx === now ? " on" : "") + '" data-shelf="' + t.idx + '">' +
+        esc(t.label) + "<span>" + (t.idx === now ? "where it is now"
+          : v == null ? "clears the rating" : "lands on " + v.toFixed(1)) + "</span></button>";
+    }).join("") + "</div>";
+}
+
+function bindShelfPicker(key) {
+  Array.prototype.forEach.call(el("shBody").querySelectorAll("[data-shelf]"), function (n) {
+    n.onclick = function () {
+      closeSheet();
+      moveToShelf(key, parseInt(n.getAttribute("data-shelf"), 10));
     };
   });
 }
